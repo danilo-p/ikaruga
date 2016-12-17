@@ -6,11 +6,11 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
-const FPS            = 40;
-const DISPLAY_WIDTH  = 500;
-const DISPLAY_HEIGHT = 500;
-const SHIP_SIZE      = 30;
-const SHIP_STEP_SIZE = 5;
+const FPS              = 40;
+const DISPLAY_WIDTH    = 500;
+const DISPLAY_HEIGHT   = 500;
+const SHIP_SIZE        = 30;
+const SHIP_STEP_SIZE   = 5;
 
 typedef enum game_directions {up=1, down, left, right} direction;
 
@@ -25,7 +25,14 @@ typedef struct element {
 typedef struct ship {
     Element *shape;
     direction course;
+    ALLEGRO_COLOR color;
 } Ship;
+
+typedef struct bullet {
+    Element *capsule;
+    direction course;
+    ALLEGRO_COLOR color;
+} Bullet;
 
 /*********************
  Util functions
@@ -44,11 +51,19 @@ void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
         ALLEGRO_EVENT_QUEUE *event_queue);
 
 /*********************
+ Element functions
+ *********************/
+Element * createElement();
+void renderElement(Element *element, ALLEGRO_COLOR color,
+        ALLEGRO_DISPLAY *display);
+bool destroyElement(Element *element);
+
+/*********************
  Ship functions
  *********************/
 Ship * createShip();
 void renderShip(Ship *ship, ALLEGRO_DISPLAY *display);
-void destroyShip(Ship *ship);
+bool destroyShip(Ship *ship);
 
 /*********************
  MAIN
@@ -64,7 +79,7 @@ int main () {
         return 0;
     }
 
-    Ship *ship = createShip();
+    Ship *ship = createShip(al_map_rgb(255, 0, 0));
     if(!ship) {
         logerror("[FATAL] Failed to create ship. Exiting...\n");
         return 0;
@@ -139,10 +154,6 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     al_register_event_source(*event_queue, al_get_display_event_source(*display));
     al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
     al_register_event_source(*event_queue, al_get_keyboard_event_source());
-
-    al_set_target_bitmap(al_get_backbuffer(*display));
-    al_clear_to_color(al_map_rgb(255, 255, 255));
-    al_flip_display();
 
     al_start_timer(*timer);
 
@@ -224,24 +235,74 @@ void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
 }
 
 /*********************
- Ship functions declaration
+ Element functions
  *********************/
+Element * createElement(int width, int height, int x, int y) {
 
-Ship * createShip() {
+    Element *element = (Element *) malloc(sizeof(Element));
 
-    Ship *ship = (Ship *) malloc(sizeof(Ship));
-    ship->shape = (Element *) malloc(sizeof(Element));
-
-    ship->shape->bitmap = al_create_bitmap(SHIP_SIZE, SHIP_SIZE);
-    if(!ship->shape->bitmap) {
-        logerror("Failed to create ship shape bitmap");
+    element->bitmap = al_create_bitmap(width, height);
+    if(!element->bitmap) {
+        logerror("Failed to create element bitmap");
         return NULL;
     }
 
-    ship->shape->height = SHIP_SIZE;
-    ship->shape->width = SHIP_SIZE;
-    ship->shape->x = 0;
-    ship->shape->y = 0;
+    element->height = height;
+    element->width = width;
+    element->x = x;
+    element->y = y;
+
+    return element;
+}
+
+void renderElement(Element *element, ALLEGRO_COLOR color,
+        ALLEGRO_DISPLAY *display) {
+
+    ALLEGRO_COLOR display_color = al_map_rgb(255, 255, 255);
+
+    al_set_target_bitmap(al_get_backbuffer(display));
+    al_clear_to_color(display_color);
+
+    al_set_target_bitmap(element->bitmap);
+    al_clear_to_color(color);
+
+    al_set_target_bitmap(al_get_backbuffer(display));
+    al_draw_bitmap(element->bitmap, element->x, element->y, 0);
+
+    al_flip_display();
+
+    al_set_target_bitmap(al_get_backbuffer(display));
+}
+
+bool destroyElement(Element *element) {
+
+    if(!element->bitmap) {
+        logerror("No element bitmap to destroy");
+        return false;
+    }
+
+    al_destroy_bitmap(element->bitmap);
+
+    loginfo("Element destroyed");
+
+    return true;
+}
+
+/*********************
+ Ship functions declaration
+ *********************/
+
+Ship * createShip(ALLEGRO_COLOR color) {
+
+    Ship *ship = (Ship *) malloc(sizeof(Ship));
+
+    ship->shape = createElement(SHIP_SIZE, SHIP_SIZE, 0, 0);
+    if(!ship->shape) {
+        logerror("Failed to create ship shape");
+        return NULL;
+    }
+
+    ship->color = color;
 
     loginfo("Ship initialized");
 
@@ -249,25 +310,15 @@ Ship * createShip() {
 }
 
 void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
-
-    al_set_target_bitmap(al_get_backbuffer(display));
-    al_clear_to_color(al_map_rgb(255, 255, 255));
-
-
-    al_set_target_bitmap(ship->shape->bitmap);
-    al_clear_to_color(al_map_rgb(255, 0, 0));
-
-    al_set_target_bitmap(al_get_backbuffer(display));
-    al_draw_bitmap(ship->shape->bitmap, ship->shape->x, ship->shape->y, 0);
-
-    al_flip_display();
-
-    al_set_target_bitmap(al_get_backbuffer(display));
+    renderElement(ship->shape, ship->color, display);
 }
 
-void destroyShip(Ship *ship) {
-    if(ship->shape->bitmap) { al_destroy_bitmap(ship->shape->bitmap); }
-    else { logerror("No ship shape bitmap to destroy"); }
+bool destroyShip(Ship *ship) {
+    if(!destroyElement(ship->shape)) {
+        logerror("Failed to destroy ship shape");
+        return false;
+    }
 
     loginfo("Ship destroyed");
+    return true;
 }

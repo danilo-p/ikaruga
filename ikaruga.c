@@ -19,7 +19,6 @@ struct ship {
     int y;
     int x;
 };
-
 typedef struct ship Ship;
 
 /*********************
@@ -34,7 +33,9 @@ void logerror(char message[255]);
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue);
 void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
-    ALLEGRO_EVENT_QUEUE **event_queue);
+        ALLEGRO_EVENT_QUEUE **event_queue);
+void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
+        ALLEGRO_EVENT_QUEUE *event_queue);
 
 /*********************
  Ship functions
@@ -63,56 +64,7 @@ int main () {
         return 0;
     }
 
-    renderShip(ship, display);
-
-    int key_pressed = 0;
-
-    bool quit = false;
-    while(!quit) {
-
-        ALLEGRO_EVENT e;
-        al_wait_for_event(event_queue, &e);
-
-        if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if(key_pressed != e.keyboard.keycode) {
-                key_pressed = e.keyboard.keycode;
-            }
-        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
-            if(key_pressed == e.keyboard.keycode) {
-                key_pressed = 0;
-            }
-        }
-
-        switch(key_pressed) {
-            case ALLEGRO_KEY_W:
-                if(ship->y > 0)
-                    ship->y -= SHIP_STEP_SIZE;
-            break;
-
-            case ALLEGRO_KEY_S:
-                if(ship->y < DISPLAY_HEIGHT - SHIP_SIZE)
-                    ship->y += SHIP_STEP_SIZE;
-            break;
-
-            case ALLEGRO_KEY_A:
-                if(ship->x > 0)
-                    ship->x -= SHIP_STEP_SIZE;
-            break;
-
-            case ALLEGRO_KEY_D:
-                if(ship->x < DISPLAY_WIDTH - SHIP_SIZE)
-                    ship->x += SHIP_STEP_SIZE;
-            break;
-
-            case ALLEGRO_KEY_ENTER:
-                quit = true;
-            break;
-        }
-
-        renderShip(ship, display);
-    }
-
-    destroyShip(ship);
+    startGame(ship, display, event_queue);
 
     destroyGame(&display, &timer, &event_queue);
 
@@ -206,6 +158,63 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     else { logerror("No event_queue to destroy"); }
 
     loginfo("Game destroyed");
+}
+
+void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
+        ALLEGRO_EVENT_QUEUE *event_queue) {
+
+    loginfo("Game started");
+
+    int key_pressed = 0;
+
+    bool quit = false;
+    while(!quit) {
+
+        renderShip(ship, display);
+
+        ALLEGRO_EVENT e;
+        al_wait_for_event(event_queue, &e);
+
+        if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if(key_pressed != e.keyboard.keycode) {
+                key_pressed = e.keyboard.keycode;
+            }
+        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
+            if(key_pressed == e.keyboard.keycode) {
+                key_pressed = 0;
+            }
+        }
+
+        switch(key_pressed) {
+            case ALLEGRO_KEY_W:
+                if(ship->y > 0)
+                    ship->y -= SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_S:
+                if(ship->y < DISPLAY_HEIGHT - SHIP_SIZE)
+                    ship->y += SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_A:
+                if(ship->x > 0)
+                    ship->x -= SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_D:
+                if(ship->x < DISPLAY_WIDTH - SHIP_SIZE)
+                    ship->x += SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_ENTER:
+                quit = true;
+            break;
+        }
+    }
+
+    loginfo("Game finished");
+
+    destroyShip(ship);
 }
 
 /*********************

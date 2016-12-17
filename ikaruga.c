@@ -12,14 +12,20 @@ const DISPLAY_HEIGHT = 500;
 const SHIP_SIZE      = 30;
 const SHIP_STEP_SIZE = 5;
 
-struct ship {
+typedef enum game_directions {up=1, down, left, right} direction;
+
+typedef struct element {
     ALLEGRO_BITMAP *bitmap;
     int height;
     int width;
     int y;
     int x;
-};
-typedef struct ship Ship;
+} Element;
+
+typedef struct ship {
+    Element *shape;
+    direction course;
+} Ship;
 
 /*********************
  Util functions
@@ -187,23 +193,23 @@ void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
 
         switch(key_pressed) {
             case ALLEGRO_KEY_W:
-                if(ship->y > 0)
-                    ship->y -= SHIP_STEP_SIZE;
+                if(ship->shape->y > 0)
+                    ship->shape->y -= SHIP_STEP_SIZE;
             break;
 
             case ALLEGRO_KEY_S:
-                if(ship->y < DISPLAY_HEIGHT - SHIP_SIZE)
-                    ship->y += SHIP_STEP_SIZE;
+                if(ship->shape->y < DISPLAY_HEIGHT - SHIP_SIZE)
+                    ship->shape->y += SHIP_STEP_SIZE;
             break;
 
             case ALLEGRO_KEY_A:
-                if(ship->x > 0)
-                    ship->x -= SHIP_STEP_SIZE;
+                if(ship->shape->x > 0)
+                    ship->shape->x -= SHIP_STEP_SIZE;
             break;
 
             case ALLEGRO_KEY_D:
-                if(ship->x < DISPLAY_WIDTH - SHIP_SIZE)
-                    ship->x += SHIP_STEP_SIZE;
+                if(ship->shape->x < DISPLAY_WIDTH - SHIP_SIZE)
+                    ship->shape->x += SHIP_STEP_SIZE;
             break;
 
             case ALLEGRO_KEY_ENTER:
@@ -224,17 +230,18 @@ void startGame(Ship *ship, ALLEGRO_DISPLAY *display,
 Ship * createShip() {
 
     Ship *ship = (Ship *) malloc(sizeof(Ship));
+    ship->shape = (Element *) malloc(sizeof(Element));
 
-    ship->bitmap = al_create_bitmap(SHIP_SIZE, SHIP_SIZE);
-    if(!ship->bitmap) {
-        logerror("Failed to create ship");
+    ship->shape->bitmap = al_create_bitmap(SHIP_SIZE, SHIP_SIZE);
+    if(!ship->shape->bitmap) {
+        logerror("Failed to create ship shape bitmap");
         return NULL;
     }
 
-    ship->height = SHIP_SIZE;
-    ship->width = SHIP_SIZE;
-    ship->x = 0;
-    ship->y = 0;
+    ship->shape->height = SHIP_SIZE;
+    ship->shape->width = SHIP_SIZE;
+    ship->shape->x = 0;
+    ship->shape->y = 0;
 
     loginfo("Ship initialized");
 
@@ -247,11 +254,11 @@ void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
     al_clear_to_color(al_map_rgb(255, 255, 255));
 
 
-    al_set_target_bitmap(ship->bitmap);
+    al_set_target_bitmap(ship->shape->bitmap);
     al_clear_to_color(al_map_rgb(255, 0, 0));
 
     al_set_target_bitmap(al_get_backbuffer(display));
-    al_draw_bitmap(ship->bitmap, ship->x, ship->y, 0);
+    al_draw_bitmap(ship->shape->bitmap, ship->shape->x, ship->shape->y, 0);
 
     al_flip_display();
 
@@ -259,8 +266,8 @@ void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
 }
 
 void destroyShip(Ship *ship) {
-    if(ship->bitmap) { al_destroy_bitmap(ship->bitmap); }
-    else { logerror("No ship bitmap to destroy"); }
+    if(ship->shape->bitmap) { al_destroy_bitmap(ship->shape->bitmap); }
+    else { logerror("No ship shape bitmap to destroy"); }
 
     loginfo("Ship destroyed");
 }

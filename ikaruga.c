@@ -6,10 +6,11 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
-const FPS            = 50;
+const FPS            = 40;
 const DISPLAY_WIDTH  = 500;
 const DISPLAY_HEIGHT = 500;
 const SHIP_SIZE      = 30;
+const SHIP_STEP_SIZE = 5;
 
 struct ship {
     ALLEGRO_BITMAP *bitmap;
@@ -45,7 +46,6 @@ void destroyShip(Ship *ship);
 /*********************
  MAIN
  *********************/
-
 int main () {
 
     ALLEGRO_DISPLAY *display         = NULL;
@@ -65,7 +65,52 @@ int main () {
 
     renderShip(ship, display);
 
-    al_rest(3.0);
+    int key_pressed = 0;
+
+    bool quit = false;
+    while(!quit) {
+
+        ALLEGRO_EVENT e;
+        al_wait_for_event(event_queue, &e);
+
+        if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if(key_pressed != e.keyboard.keycode) {
+                key_pressed = e.keyboard.keycode;
+            }
+        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
+            if(key_pressed == e.keyboard.keycode) {
+                key_pressed = 0;
+            }
+        }
+
+        switch(key_pressed) {
+            case ALLEGRO_KEY_W:
+                if(ship->y > 0)
+                    ship->y -= SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_S:
+                if(ship->y < DISPLAY_HEIGHT - SHIP_SIZE)
+                    ship->y += SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_A:
+                if(ship->x > 0)
+                    ship->x -= SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_D:
+                if(ship->x < DISPLAY_WIDTH - SHIP_SIZE)
+                    ship->x += SHIP_STEP_SIZE;
+            break;
+
+            case ALLEGRO_KEY_ENTER:
+                quit = true;
+            break;
+        }
+
+        renderShip(ship, display);
+    }
 
     destroyShip(ship);
 
@@ -104,7 +149,10 @@ void logerror(char message[255]) {
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue) {
 
-    al_init();
+    if(!al_init()) {
+        logerror("Failed to initialize allegro");
+        return 0;
+    }
 
     *display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
     if(!*display) {
@@ -132,6 +180,7 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
     al_register_event_source(*event_queue, al_get_display_event_source(*display));
     al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
+    al_register_event_source(*event_queue, al_get_keyboard_event_source());
 
     al_set_target_bitmap(al_get_backbuffer(*display));
     al_clear_to_color(al_map_rgb(255, 255, 255));
@@ -185,6 +234,10 @@ Ship * createShip() {
 
 void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
 
+    al_set_target_bitmap(al_get_backbuffer(display));
+    al_clear_to_color(al_map_rgb(255, 255, 255));
+
+
     al_set_target_bitmap(ship->bitmap);
     al_clear_to_color(al_map_rgb(255, 0, 0));
 
@@ -192,6 +245,8 @@ void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
     al_draw_bitmap(ship->bitmap, ship->x, ship->y, 0);
 
     al_flip_display();
+
+    al_set_target_bitmap(al_get_backbuffer(display));
 }
 
 void destroyShip(Ship *ship) {

@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
 
 const FPS            = 50;
 const DISPLAY_WIDTH  = 500;
@@ -19,35 +21,51 @@ struct ship {
 
 typedef struct ship Ship;
 
+/*********************
+ Util functions
+ *********************/
 void loginfo(char message[255]);
 void logerror(char message[255]);
 
+/*********************
+ Game functions
+ *********************/
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue);
-
 void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     ALLEGRO_EVENT_QUEUE **event_queue);
 
-int initShip(Ship *ship);
-
+/*********************
+ Ship functions
+ *********************/
+Ship * createShip();
+void renderShip(Ship *ship, ALLEGRO_DISPLAY *display);
 void destroyShip(Ship *ship);
+
+/*********************
+ MAIN
+ *********************/
 
 int main () {
 
     ALLEGRO_DISPLAY *display         = NULL;
     ALLEGRO_TIMER *timer             = NULL;
     ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-    Ship *ship = (Ship *) malloc(sizeof(Ship));
 
     if(!initGame(&display, &timer, &event_queue)) {
-        printf("FATAL: Failed to init game. Exiting...\n");
+        logerror("[FATAL] Failed to init game. Exiting...\n");
         return 0;
     }
 
-    if(!initShip(ship)) {
-        printf("FATAL: Failed to init ship. Exiting...\n");
+    Ship *ship = createShip();
+    if(!ship) {
+        logerror("[FATAL] Failed to create ship. Exiting...\n");
         return 0;
     }
+
+    renderShip(ship, display);
+
+    al_rest(3.0);
 
     destroyShip(ship);
 
@@ -55,6 +73,10 @@ int main () {
 
     return 0;
 }
+
+/*********************
+ Util functions declaration
+ *********************/
 
 void loginfo(char message[255]) {
 
@@ -74,6 +96,10 @@ void logerror(char message[255]) {
         tm.tm_hour, tm.tm_min, tm.tm_sec,
         message);
 }
+
+/*********************
+ Game functions declaration
+ *********************/
 
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue) {
@@ -101,6 +127,18 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         return 0;
     }
 
+    al_install_keyboard();
+    al_init_primitives_addon();
+
+    al_register_event_source(*event_queue, al_get_display_event_source(*display));
+    al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
+
+    al_set_target_bitmap(al_get_backbuffer(*display));
+    al_clear_to_color(al_map_rgb(255, 255, 255));
+    al_flip_display();
+
+    al_start_timer(*timer);
+
     loginfo("Game initialized");
 
     return 1;
@@ -121,13 +159,18 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     loginfo("Game destroyed");
 }
 
-int initShip(Ship *ship) {
+/*********************
+ Ship functions declaration
+ *********************/
 
-    ship->bitmap = NULL;
+Ship * createShip() {
+
+    Ship *ship = (Ship *) malloc(sizeof(Ship));
+
     ship->bitmap = al_create_bitmap(SHIP_SIZE, SHIP_SIZE);
     if(!ship->bitmap) {
         logerror("Failed to create ship");
-        return 0;
+        return NULL;
     }
 
     ship->height = SHIP_SIZE;
@@ -137,7 +180,18 @@ int initShip(Ship *ship) {
 
     loginfo("Ship initialized");
 
-    return 1;
+    return ship;
+}
+
+void renderShip(Ship *ship, ALLEGRO_DISPLAY *display) {
+
+    al_set_target_bitmap(ship->bitmap);
+    al_clear_to_color(al_map_rgb(255, 0, 0));
+
+    al_set_target_bitmap(al_get_backbuffer(display));
+    al_draw_bitmap(ship->bitmap, ship->x, ship->y, 0);
+
+    al_flip_display();
 }
 
 void destroyShip(Ship *ship) {

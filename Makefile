@@ -10,7 +10,7 @@ LIB_MATH=-lm
 all: ikaruga
 
 ikaruga: ikaruga.o
-	gcc -o $(BIN_DIR)ikaruga $(OBJ_DIR)ikaruga.o $(LIB_ALLEGRO) $(LIB_IMAGE) $(LIB_TTF) $(LIB_MATH)
+	gcc -o $(BIN_DIR)ikaruga $(OBJ_DIR)ikaruga.o $(LIB_ALLEGRO) $(LIB_PRIMITIVES) $(LIB_IMAGE) $(LIB_TTF) $(LIB_MATH)
 
 ikaruga.o: ikaruga.c
 	gcc -o $(OBJ_DIR)ikaruga.o -c ikaruga.c

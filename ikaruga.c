@@ -6,7 +6,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 
-const FPS              = 40;
+const FPS              = 20;
 
 const DISPLAY_WIDTH    = 500;
 const DISPLAY_HEIGHT   = 500;
@@ -17,7 +17,7 @@ const SHIP_STEP_SIZE   = 5;
 const BULLET_SIZE      = 5;
 const BULLET_STEP_SIZE = 15;
 
-typedef enum game_directions {up=1, down, left, right} direction;
+typedef enum game_directions {up=0, down, left, right} direction;
 
 typedef struct element {
     ALLEGRO_BITMAP *bitmap;
@@ -207,75 +207,67 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
         return false;
     }
 
-    int key_pressed = 0;
+    int key_pressed_1=0;
+    int key_pressed_2=0;
 
     while(!quit) {
-
-        ALLEGRO_COLOR display_color = al_map_rgb(255, 255, 255);
-        al_set_target_bitmap(al_get_backbuffer(display));
-        al_clear_to_color(display_color);
-
-        renderShip(hero, display);
-
-        for(i=0; i<bullets_count; i++) {
-            renderBullet(&bullets[i], display);
-        }
 
         ALLEGRO_EVENT e;
         al_wait_for_event(event_queue, &e);
 
         if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
-            if(key_pressed != e.keyboard.keycode) {
-                key_pressed = e.keyboard.keycode;
+            switch(e.keyboard.keycode) {
+                case ALLEGRO_KEY_W:
+                    if(hero->shape->y > 0)
+                        moveShip(hero, up);
+                break;
+
+                case ALLEGRO_KEY_S:
+                    if(hero->shape->y < DISPLAY_HEIGHT - SHIP_SIZE)
+                        moveShip(hero, down);
+                break;
+
+                case ALLEGRO_KEY_A:
+                    if(hero->shape->x > 0)
+                        moveShip(hero, left);
+                break;
+
+                case ALLEGRO_KEY_D:
+                    if(hero->shape->x < DISPLAY_WIDTH - SHIP_SIZE)
+                        moveShip(hero, right);
+                break;
+
+                case ALLEGRO_KEY_SPACE:
+                    new_bullet = fireShip(hero);
+                    if(!new_bullet) {
+                        logerror("Failed to fire ship");
+                    } else {
+                        pushBullet(new_bullet, &bullets, bullets_count);
+                        bullets_count++;
+                    }
+                break;
+
+                case ALLEGRO_KEY_ENTER:
+                    quit = true;
+                break;
             }
-        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
-            if(key_pressed == e.keyboard.keycode) {
-                key_pressed = 0;
+        } else if(e.type == ALLEGRO_EVENT_TIMER) {
+
+            ALLEGRO_COLOR display_color = al_map_rgb(255, 255, 255);
+            al_set_target_bitmap(al_get_backbuffer(display));
+            al_clear_to_color(display_color);
+
+            renderShip(hero, display);
+
+            for(i=0; i<bullets_count; i++) {
+                renderBullet(&bullets[i], display);
+            }
+
+            for(i=0; i<bullets_count; i++) {
+                char message[255];
+                moveBullet(&bullets[i]);
             }
         }
-
-        switch(key_pressed) {
-            case ALLEGRO_KEY_W:
-                if(hero->shape->y > 0)
-                    moveShip(hero, up);
-            break;
-
-            case ALLEGRO_KEY_S:
-                if(hero->shape->y < DISPLAY_HEIGHT - SHIP_SIZE)
-                    moveShip(hero, down);
-            break;
-
-            case ALLEGRO_KEY_A:
-                if(hero->shape->x > 0)
-                    moveShip(hero, left);
-            break;
-
-            case ALLEGRO_KEY_D:
-                if(hero->shape->x < DISPLAY_WIDTH - SHIP_SIZE)
-                    moveShip(hero, right);
-            break;
-
-            case ALLEGRO_KEY_ENTER:
-                quit = true;
-            break;
-        }
-
-        if(e.type == ALLEGRO_EVENT_KEY_DOWN &&
-            e.keyboard.keycode == ALLEGRO_KEY_SPACE) {
-            new_bullet = fireShip(hero);
-            if(!new_bullet) {
-                logerror("Failed to fire ship");
-            } else {
-                pushBullet(new_bullet, &bullets, bullets_count);
-                bullets_count++;
-            }
-        }
-
-        for(i=0; i<bullets_count; i++) {
-            char message[255];
-            moveBullet(&bullets[i]);
-        }
-
     }
 
     if(!destroyShip(hero)) {
@@ -462,8 +454,6 @@ Bullet * createBullet(Ship *owner) {
     bullet->course = owner->course;
     bullet->owner = owner;
 
-    loginfo("Bullet created");
-
     return bullet;
 }
 
@@ -496,8 +486,6 @@ Bullet * fireShip(Ship *ship) {
     }
 
     ship->bullet_count++;
-
-    loginfo("Ship fired");
 
     return bullet;
 }

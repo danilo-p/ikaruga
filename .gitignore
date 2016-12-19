@@ -1,3 +1,7 @@
+# Bin and Obj folders
+obj/
+bin/
+
 # Object files
 *.o
 *.ko

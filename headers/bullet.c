@@ -75,7 +75,21 @@ void moveBullet(Bullet *bullet) {
 Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
     loginfo("fireShip enter");
 
-    Bullet bullet = createBullet(ship);
+    Bullet bullet = (Bullet) {
+        .course = 0,
+        .owner = NULL,
+        .id = ""
+    };
+
+    // Check fire ratio
+    if(ship->last_bullet_fired + SHIP_FIRE_INTERVAL > e.any.timestamp) {
+        // Return empty bullet
+        return bullet;
+    }
+
+    // Bullet ratio ok. Create the bullet.
+
+    bullet = createBullet(ship);
 
     if(checkBullet(bullet)) {
         ship->bullet_count++;

@@ -161,11 +161,13 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
 
             if(space_key) {
-                new_bullet = fireShip(&hero);
-                if(checkBullet(new_bullet)) {
-                    bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
-                } else {
-                    logerror("Failed to fire ship");
+                if(hero.last_bullet_fired + SHIP_FIRE_INTERVAL < e.any.timestamp) {
+                    new_bullet = fireShip(&hero, e);
+                    if(checkBullet(new_bullet)) {
+                        bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
+                    } else {
+                        logerror("Failed to fire ship");
+                    }
                 }
             }
 

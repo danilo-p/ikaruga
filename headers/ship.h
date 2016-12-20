@@ -10,6 +10,7 @@ typedef struct {
     char id[255];
     direction course;
     Element shape;
+    double last_bullet_fired;
     int bullet_count;
 } Ship;
 

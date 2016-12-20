@@ -13,6 +13,7 @@ const int DISPLAY_COLOR_BLUE;
 
 const int SHIP_SIZE;
 const int SHIP_STEP_SIZE;
+const double SHIP_FIRE_INTERVAL;
 
 const int BULLET_SIZE;
 const int BULLET_STEP_SIZE;

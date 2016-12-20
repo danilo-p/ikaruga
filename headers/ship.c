@@ -13,6 +13,7 @@ Ship createShip(char id[255], direction course, ALLEGRO_COLOR color) {
     Ship ship = (Ship) {
         .course = course,
         .bullet_count = 0,
+        .last_bullet_fired = 0,
         .id = "",
     };
 

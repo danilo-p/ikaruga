@@ -72,13 +72,14 @@ void moveBullet(Bullet *bullet) {
     loginfo("moveBullet finish");
 }
 
-Bullet fireShip(Ship *ship) {
+Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
     loginfo("fireShip enter");
 
     Bullet bullet = createBullet(ship);
 
     if(checkBullet(bullet)) {
         ship->bullet_count++;
+        ship->last_bullet_fired = e.any.timestamp;
     } else {
         logerror("Failed to create bullet");
     }

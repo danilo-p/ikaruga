@@ -14,7 +14,7 @@ typedef struct {
     int bullet_count;
 } Ship;
 
-Ship createShip(char id[255], direction course, ALLEGRO_COLOR color);
+Ship createShip(char id[255], int x, int y, direction course, ALLEGRO_COLOR color);
 
 bool checkShip(const Ship ship);
 
@@ -30,6 +30,10 @@ bool checkShipDisplayColision(const Ship ship);
 
 void printShip(const Ship ship);
 
+void printShipArray(const Ship *array, int length);
+
 int pushShip(const Ship ship, Ship **array, int length);
+
+int popShip(const Ship ship, Ship **array, int length);
 
 #endif

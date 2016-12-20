@@ -2,6 +2,7 @@
 #include <allegro5/allegro_image.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "bullet.h"
 #include "config.h"
@@ -73,9 +74,10 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
 bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
-    Ship hero;
+    Ship hero, *enemies = NULL, new_enemy;
     Bullet *bullets = NULL, new_bullet;
-    int i, bullets_count = 0;
+    int i, bullets_count = 0, enemies_count = 0;
+    double last_enemy_created = FIRST_ENEMY_OFFSET;
     bool quit = false;
 
     int move_key_1 = -1, move_key_2 = -1;
@@ -83,7 +85,11 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     loginfo("startGame enter");
 
-    hero = createShip("hero", up, al_map_rgb(255, 0, 0));
+    int HERO_SPAWN_X = (DISPLAY_WIDTH/2) - (SHIP_SIZE/2);
+    int HERO_SPAWN_Y = DISPLAY_HEIGHT - (SHIP_SIZE * 2);
+
+    hero = createShip("hero", HERO_SPAWN_X, HERO_SPAWN_Y, up,
+        al_map_rgb(TYPE_1_RED, TYPE_1_GREEN, TYPE_1_BLUE));
 
     if(!checkShip(hero)) {
         logerror("Failed to create hero. Game finished.");
@@ -114,7 +120,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
             renderDisplay(display);
 
-            // Process hero actions
+            // Game logic
 
             switch(move_key_1) {
                 case ALLEGRO_KEY_W:
@@ -162,12 +168,28 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
             if(space_key) {
                 new_bullet = fireShip(&hero, e);
-                if(checkBullet(new_bullet)) {
+                if(checkBullet(new_bullet))
                     bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
-                } else {
-                    logerror("Failed to fire ship");
-                }
             }
+
+            // if(last_enemy_created + ENEMY_SPAWN_INTERVAL < e.any.timestamp) {
+            //     char id[255] = "";
+            //     int type = rand() % 2;
+            //     int x = rand() % DISPLAY_WIDTH;
+            //     int y = (SHIP_SIZE * 2);
+            //
+            //     sprintf(id, "enemy_%d", enemies_count);
+            //
+            //     new_enemy = createShip(
+            //         id,
+            //         rand() % DISPLAY_WIDTH,
+            //         (SHIP_SIZE * 2),
+            //         up,
+            //         type ? al_map_rgb(255, 0, 0)
+            //     );
+            //     if(checkShip(new_enemy))
+            //         enemies_count = pushShip(new_enemy, &enemies, enemies_count);
+            // }
 
             // Moving elements
 

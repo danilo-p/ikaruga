@@ -7,7 +7,7 @@
 #include "element.h"
 #include "ship.h"
 
-Ship createShip(char id[255], direction course, ALLEGRO_COLOR color) {
+Ship createShip(char id[255], int x, int y, direction course, ALLEGRO_COLOR color) {
     loginfo("createShip enter");
 
     Ship ship = (Ship) {
@@ -17,7 +17,7 @@ Ship createShip(char id[255], direction course, ALLEGRO_COLOR color) {
         .id = "",
     };
 
-    ship.shape = createElement(SHIP_SIZE, SHIP_SIZE, 0, 0, color);
+    ship.shape = createElement(SHIP_SIZE, SHIP_SIZE, x, y, color);
 
     strcpy(ship.id, id);
 
@@ -81,6 +81,11 @@ void printShip(const Ship ship) {
     printElement(ship.shape);
 }
 
+void printShipArray(const Ship *array, int length) {
+    int i=0;
+    for(i=0; i<length; i++) {printShip(array[i]); }
+}
+
 int pushShip(const Ship ship, Ship **array, int length) {
     loginfo("pushShip enter");
 
@@ -100,6 +105,49 @@ int pushShip(const Ship ship, Ship **array, int length) {
     length++;
 
     loginfo("pushShip finish");
+
+    return length;
+}
+
+int popShip(const Ship ship, Ship **array, int length) {
+    loginfo("popShip enter");
+
+    int i, j;
+
+    printf("\n\n\narray[%d]: \n\n", length);
+
+    printShipArray(*array, length);
+
+    loginfo("Trying to find ship");
+
+    for(i=0; i<length; i++) {
+        if(!strcmp( (*array)[i].id , ship.id )) {
+
+            loginfo("Ship found");
+
+            destroyShip( &((*array)[i]) );
+
+            length--;
+
+            for(j=i; j<length; j++)
+                (*array)[j] = (*array)[j+1];
+
+            if(length > 0){
+                *array = realloc(*array, (length) * sizeof(Ship));
+            } else {
+                free(*array);
+                *array = NULL;
+            }
+
+            break;
+        }
+    }
+
+    printf("\n\n\nupdated array[%d]: \n\n", length);
+
+    printShipArray(*array, length);
+
+    loginfo("popShip finish");
 
     return length;
 }

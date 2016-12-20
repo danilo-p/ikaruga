@@ -26,7 +26,7 @@ Bullet createBullet(Ship *owner) {
     bullet.capsule = createElement(
         BULLET_SIZE,
         BULLET_SIZE,
-        owner->shape.x + owner->shape.width/2.0,
+        (owner->shape.x) + (owner->shape.width/2) - (BULLET_SIZE/2),
         owner->shape.y,
         owner->shape.color
     );
@@ -136,6 +136,8 @@ int popBullet(const Bullet bullet, Bullet **array, int length) {
         if(!strcmp( (*array)[i].id , bullet.id )) {
 
             loginfo("Bullet found");
+
+            destroyBullet( &((*array)[i]) );
 
             length--;
 

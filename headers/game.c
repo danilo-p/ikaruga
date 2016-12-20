@@ -78,6 +78,9 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
     int i, bullets_count = 0;
     bool quit = false;
 
+    int move_key_1 = -1, move_key_2 = -1;
+    bool space_key = false;
+
     loginfo("startGame enter");
 
     hero = createShip("hero", up, al_map_rgb(255, 0, 0));
@@ -111,6 +114,61 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
             renderDisplay(display);
 
+            // Process hero actions
+
+            switch(move_key_1) {
+                case ALLEGRO_KEY_W:
+                    if(hero.shape.y > 0)
+                        moveShip(&hero, up);
+                break;
+
+                case ALLEGRO_KEY_S:
+                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
+                        moveShip(&hero, down);
+                break;
+
+                case ALLEGRO_KEY_A:
+                    if(hero.shape.x > 0)
+                        moveShip(&hero, left);
+                break;
+
+                case ALLEGRO_KEY_D:
+                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
+                        moveShip(&hero, right);
+                break;
+            }
+
+            switch(move_key_2) {
+                case ALLEGRO_KEY_W:
+                    if(hero.shape.y > 0)
+                        moveShip(&hero, up);
+                break;
+
+                case ALLEGRO_KEY_S:
+                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
+                        moveShip(&hero, down);
+                break;
+
+                case ALLEGRO_KEY_A:
+                    if(hero.shape.x > 0)
+                        moveShip(&hero, left);
+                break;
+
+                case ALLEGRO_KEY_D:
+                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
+                        moveShip(&hero, right);
+                break;
+            }
+
+            if(space_key) {
+                new_bullet = fireShip(&hero);
+                if(checkBullet(new_bullet)) {
+                    bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
+                } else {
+                    logerror("Failed to fire ship");
+                }
+            }
+
             // Moving elements
 
             for(i=0; i<bullets_count; i++) { moveBullet( &(bullets[i]) ); }
@@ -132,51 +190,69 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
-                    loginfo("ALLEGRO_KEY_W");
-                    if(hero.shape.y > 0)
-                        moveShip(&hero, up);
-                break;
-
                 case ALLEGRO_KEY_S:
-                    loginfo("ALLEGRO_KEY_S");
-                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
-                        moveShip(&hero, down);
-                break;
-
                 case ALLEGRO_KEY_A:
-                    loginfo("ALLEGRO_KEY_A");
-                    if(hero.shape.x > 0)
-                        moveShip(&hero, left);
-                break;
-
                 case ALLEGRO_KEY_D:
-                    loginfo("ALLEGRO_KEY_D");
-                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
-                        moveShip(&hero, right);
-                break;
+                    loginfo("move key down");
+                    // If both keys are different from the pressed key
+                    if(move_key_1 != e.keyboard.keycode &&
+                            move_key_2 != e.keyboard.keycode) {
 
-                case ALLEGRO_KEY_SPACE:
-                    loginfo("ALLEGRO_KEY_SPACE");
-                    new_bullet = fireShip(&hero);
-                    if(checkBullet(new_bullet)) {
-                        bullets_count = pushBullet(new_bullet, &bullets,
-                            bullets_count);
-                        printBulletArray(bullets, bullets_count);
-                    } else {
-                        logerror("Failed to fire ship");
+                        // If the first key is not pressed. Give it a value.
+                        if(move_key_1 == -1) {
+                            move_key_1 = e.keyboard.keycode;
+                        }
+                        // If the second key is not pressed. Give it a value.
+                        else if(move_key_2 == -1) {
+                            move_key_2 = e.keyboard.keycode;
+                        }
+                        // If both keys are pressed. Discard the second value.
+                        else {
+                            move_key_2 = e.keyboard.keycode;
+                        }
                     }
                 break;
 
+                case ALLEGRO_KEY_SPACE:
+                    loginfo("space key down");
+                    space_key = true;
+                break;
+
                 case ALLEGRO_KEY_ENTER:
-                    loginfo("ALLEGRO_KEY_ENTER");
+                    loginfo("quit key down");
                     quit = true;
                 break;
             }
 
             loginfo("key down event finish");
             printf("\n\n");
+        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
+            printf("\n\n");
+            loginfo("key up event enter");
 
-            // getchar();
+            switch(e.keyboard.keycode) {
+                case ALLEGRO_KEY_W:
+                case ALLEGRO_KEY_S:
+                case ALLEGRO_KEY_A:
+                case ALLEGRO_KEY_D:
+                    loginfo("move key up");
+
+                    if(move_key_1 == e.keyboard.keycode)
+                        move_key_1 = -1;
+
+                    if(move_key_2 == e.keyboard.keycode)
+                        move_key_2 = -1;
+
+                break;
+
+                case ALLEGRO_KEY_SPACE:
+                    loginfo("space key up");
+                    space_key = false;
+                break;
+            }
+
+            loginfo("key up event finish");
+            printf("\n\n");
         }
     }
 

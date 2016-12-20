@@ -53,19 +53,19 @@ void renderElement(Element element, ALLEGRO_DISPLAY *display) {
     al_draw_bitmap(element.bitmap, element.x, element.y, 0);
 }
 
-void moveElement(Element element, direction course, int step_size) {
+void moveElement(Element *element, direction course, int step_size) {
     switch (course) {
         case up:
-            element.y -= step_size;
+            element->y -= step_size;
         break;
         case down:
-            element.y += step_size;
+            element->y += step_size;
         break;
         case left:
-            element.x -= step_size;
+            element->x -= step_size;
         break;
         case right:
-            element.x += step_size;
+            element->x += step_size;
         break;
     }
 }

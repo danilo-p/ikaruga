@@ -118,8 +118,9 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<bullets_count; i++) {
                 printBullet(bullets[i]);
 
-                if(checkBulletDisplayColision(bullets[i]))
-                    popBullet(bullets[i], &bullets, bullets_count);
+                if(checkBulletDisplayColision(bullets[i])) {
+                    bullets_count = popBullet(bullets[i], &bullets, bullets_count);
+                }
             }
 
             loginfo("timer event finish");

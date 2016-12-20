@@ -68,7 +68,7 @@ bool destroyBullet(Bullet *bullet) {
 
 void moveBullet(Bullet *bullet) {
     loginfo("moveBullet enter");
-    moveElement(bullet->capsule, bullet->course, BULLET_STEP_SIZE);
+    moveElement( &(bullet->capsule), bullet->course, BULLET_STEP_SIZE);
     loginfo("moveBullet finish");
 }
 
@@ -126,18 +126,36 @@ int popBullet(const Bullet bullet, Bullet **array, int length) {
 
     int i, j;
 
+    printf("\n\n\narray[%d]: \n\n", length);
+
+    printBulletArray(*array, length);
+
+    loginfo("Trying to find bullet");
+
     for(i=0; i<length; i++) {
         if(!strcmp( (*array)[i].id , bullet.id )) {
-            for(j=i; j<length; j++)
-                array[j] = array[j+1];
+
+            loginfo("Bullet found");
 
             length--;
 
-            *array = realloc(*array, (length) * sizeof(Bullet));
+            for(j=i; j<length; j++)
+                (*array)[j] = (*array)[j+1];
+
+            if(length > 0){
+                *array = realloc(*array, (length) * sizeof(Bullet));
+            } else {
+                free(*array);
+                *array = NULL;
+            }
 
             break;
         }
     }
+
+    printf("\n\n\nupdated array[%d]: \n\n", length);
+
+    printBulletArray(*array, length);
 
     loginfo("popBullet finish");
 

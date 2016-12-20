@@ -44,7 +44,7 @@ void renderShip(const Ship ship, ALLEGRO_DISPLAY *display) {
 void moveShip(Ship *ship, direction course) {
     loginfo("moveShip enter");
 
-    moveElement(ship->shape, course, SHIP_STEP_SIZE);
+    moveElement( &(ship->shape), course, SHIP_STEP_SIZE);
 
     loginfo("moveShip finish");
 }

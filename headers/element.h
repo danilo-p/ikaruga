@@ -23,7 +23,7 @@ bool checkElement(const Element element);
 
 void renderElement(Element element, ALLEGRO_DISPLAY *display);
 
-void moveElement(Element element, direction course, int step_size);
+void moveElement(Element *element, direction course, int step_size);
 
 bool checkElementDisplayColision(Element element);
 

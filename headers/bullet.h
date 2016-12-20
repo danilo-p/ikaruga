@@ -6,25 +6,35 @@
 #ifndef BULLET_H
 #define BULLET_H
 
-typedef struct bullet {
+typedef struct {
     char id[255];
     direction course;
     Ship *owner;
-    Element *capsule;
+    Element capsule;
 } Bullet;
 
-Bullet * createBullet(Ship *owner);
+Bullet createBullet(Ship *owner);
 
-void renderBullet(Bullet *bullet, ALLEGRO_DISPLAY *display);
+bool checkBullet(const Bullet bullet);
 
-void moveBullet(Bullet *bullet);
+void renderBullet(const Bullet bullet, ALLEGRO_DISPLAY *display);
 
 bool destroyBullet(Bullet *bullet);
 
-Bullet * fireShip(Ship *ship);
+void moveBullet(Bullet *bullet);
 
-void pushBullet(Bullet *bullet, Bullet **array, int array_lenght);
+Bullet fireShip(Ship *ship);
 
-int popBullet(Bullet *bullet, Bullet *array, int array_lenght);
+bool checkBulletShipColision(const Bullet bullet, const Ship ship);
+
+bool checkBulletDisplayColision(const Bullet bullet);
+
+int pushBullet(const Bullet bullet, Bullet **array, int length);
+
+int popBullet(const Bullet bullet, Bullet **array, int length);
+
+void printBullet(const Bullet bullet);
+
+void printBulletArray(const Bullet *array, int length);
 
 #endif

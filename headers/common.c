@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void loginfo(char message[255]) {
+void loginfo(const char *message) {
 
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
@@ -15,7 +15,7 @@ void loginfo(char message[255]) {
         message);
 }
 
-void logerror(char message[255]) {
+void logerror(const char *message) {
     time_t t = time(NULL);
     struct tm tm = *localtime(&t);
 

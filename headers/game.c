@@ -1,15 +1,19 @@
 #include <allegro5/allegro.h>
-
-#include "config.h"
-#include "common.h"
+#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_primitives.h>
+#include <stdio.h>
 
 #include "bullet.h"
-#include "ship.h"
-
+#include "config.h"
+#include "common.h"
+#include "display.h"
 #include "game.h"
+#include "ship.h"
 
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue) {
+
+    loginfo("initGame enter");
 
     if(!al_init()) {
         logerror("Failed to initialize allegro");
@@ -46,13 +50,14 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
     al_start_timer(*timer);
 
-    loginfo("Game initialized");
+    loginfo("initGame finish");
 
     return 1;
 }
 
 void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue) {
+    loginfo("destroyGame enter");
 
     if(*timer) { al_destroy_timer(*timer); }
     else { logerror("No timer to destroy"); }
@@ -63,91 +68,122 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     if(*event_queue) { al_destroy_event_queue(*event_queue); }
     else { logerror("No event_queue to destroy"); }
 
-    loginfo("Game destroyed");
+    loginfo("destroyGame finish");
 }
 
 bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
-    Bullet *bullets, *new_bullet;
-    int i, bullets_count=0;
+    Ship hero;
+    Bullet *bullets = NULL, new_bullet;
+    int i, bullets_count = 0;
     bool quit = false;
 
-    loginfo("Game started");
+    loginfo("startGame enter");
 
-    Ship *hero = createShip("hero", up, al_map_rgb(255, 0, 0));
-    if(!hero) {
-        logerror("Failed to create hero. Game finished.\n");
+    hero = createShip("hero", up, al_map_rgb(255, 0, 0));
+
+    if(!checkShip(hero)) {
+        logerror("Failed to create hero. Game finished.");
         return false;
     }
 
-    int key_pressed_1=0;
-    int key_pressed_2=0;
-
     while(!quit) {
-
         ALLEGRO_EVENT e;
         al_wait_for_event(event_queue, &e);
 
-        if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
+        if(e.type == ALLEGRO_EVENT_TIMER) {
+
+            printf("\n\n");
+
+            loginfo("timer event enter");
+
+            // Rendering the game
+
+            clearDisplay(display);
+
+            renderShip(hero, display);
+
+            printBulletArray(bullets, bullets_count);
+
+            for(i=0; i<bullets_count; i++) {
+                renderBullet(bullets[i], display);
+            }
+
+            renderDisplay(display);
+
+            // Moving elements
+
+            for(i=0; i<bullets_count; i++) { moveBullet( &(bullets[i]) ); }
+
+            for(i=0; i<bullets_count; i++) {
+                printBullet(bullets[i]);
+
+                if(checkBulletDisplayColision(bullets[i]))
+                    popBullet(bullets[i], &bullets, bullets_count);
+            }
+
+            loginfo("timer event finish");
+
+            printf("\n\n");
+        } else if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
+            printf("\n\n");
+            loginfo("key down event enter");
+
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
-                    if(hero->shape->y > 0)
-                        moveShip(hero, up);
+                    loginfo("ALLEGRO_KEY_W");
+                    if(hero.shape.y > 0)
+                        moveShip(&hero, up);
                 break;
 
                 case ALLEGRO_KEY_S:
-                    if(hero->shape->y < DISPLAY_HEIGHT - SHIP_SIZE)
-                        moveShip(hero, down);
+                    loginfo("ALLEGRO_KEY_S");
+                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
+                        moveShip(&hero, down);
                 break;
 
                 case ALLEGRO_KEY_A:
-                    if(hero->shape->x > 0)
-                        moveShip(hero, left);
+                    loginfo("ALLEGRO_KEY_A");
+                    if(hero.shape.x > 0)
+                        moveShip(&hero, left);
                 break;
 
                 case ALLEGRO_KEY_D:
-                    if(hero->shape->x < DISPLAY_WIDTH - SHIP_SIZE)
-                        moveShip(hero, right);
+                    loginfo("ALLEGRO_KEY_D");
+                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
+                        moveShip(&hero, right);
                 break;
 
                 case ALLEGRO_KEY_SPACE:
-                    new_bullet = fireShip(hero);
-                    if(!new_bullet) {
-                        logerror("Failed to fire ship");
+                    loginfo("ALLEGRO_KEY_SPACE");
+                    new_bullet = fireShip(&hero);
+                    if(checkBullet(new_bullet)) {
+                        bullets_count = pushBullet(new_bullet, &bullets,
+                            bullets_count);
+                        printBulletArray(bullets, bullets_count);
                     } else {
-                        pushBullet(new_bullet, &bullets, bullets_count);
-                        bullets_count++;
+                        logerror("Failed to fire ship");
                     }
                 break;
 
                 case ALLEGRO_KEY_ENTER:
+                    loginfo("ALLEGRO_KEY_ENTER");
                     quit = true;
                 break;
             }
-        } else if(e.type == ALLEGRO_EVENT_TIMER) {
 
-            ALLEGRO_COLOR display_color = al_map_rgb(255, 255, 255);
-            al_set_target_bitmap(al_get_backbuffer(display));
-            al_clear_to_color(display_color);
+            loginfo("key down event finish");
+            printf("\n\n");
 
-            renderShip(hero, display);
-
-            for(i=0; i<bullets_count; i++) {
-                renderBullet(&bullets[i], display);
-            }
-
-            for(i=0; i<bullets_count; i++) {
-                char message[255];
-                moveBullet(&bullets[i]);
-            }
+            // getchar();
         }
     }
 
-    if(!destroyShip(hero)) {
+    if(!destroyShip(&hero)) {
         logerror("Failed to destroy ship. Game finished");
         return false;
     }
 
-    loginfo("Game finished");
+    loginfo("startGame finish");
     return true;
 }

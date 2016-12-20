@@ -1,10 +1,10 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-typedef enum game_directions {up=0, down, left, right} direction;
+typedef enum {up=0, down, left, right} direction;
 
-void loginfo(char message[255]);
+void loginfo(const char *message);
 
-void logerror(char message[255]);
+void logerror(const char *message);
 
 #endif

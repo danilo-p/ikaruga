@@ -3,19 +3,18 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-const FPS;
+const int FPS;
 
-const DISPLAY_WIDTH;
-const DISPLAY_HEIGHT;
-const DISPLAY_COLOR_RED;
-const DISPLAY_COLOR_GREEN;
-const DISPLAY_COLOR_BLUE;
+const int DISPLAY_WIDTH;
+const int DISPLAY_HEIGHT;
+const int DISPLAY_COLOR_RED;
+const int DISPLAY_COLOR_GREEN;
+const int DISPLAY_COLOR_BLUE;
 
-const SHIP_SIZE;
-const SHIP_STEP_SIZE;
+const int SHIP_SIZE;
+const int SHIP_STEP_SIZE;
 
-const BULLET_SIZE;
-const BULLET_STEP_SIZE;
-
+const int BULLET_SIZE;
+const int BULLET_STEP_SIZE;
 
 #endif

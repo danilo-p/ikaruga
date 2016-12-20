@@ -1,106 +1,159 @@
 #include <stdio.h>
+#include <string.h>
 #include <allegro5/allegro.h>
 
 #include "config.h"
 #include "common.h"
+#include "bullet.h"
 #include "element.h"
 #include "ship.h"
-#include "bullet.h"
 
-Bullet * createBullet(Ship *owner) {
+Bullet createBullet(Ship *owner) {
+    loginfo("createBullet enter");
 
-    Bullet *bullet = (Bullet *) malloc(sizeof(Bullet));
+    printShip(*owner);
 
-    bullet->capsule = createElement(
+    Bullet bullet = (Bullet) {
+        .course = 0,
+        .owner = NULL,
+        .id = ""
+    };
+
+    sprintf(bullet.id, "bullet_%d_%s", owner->bullet_count, owner->id);
+    bullet.course = owner->course;
+    bullet.owner = owner;
+
+    bullet.capsule = createElement(
         BULLET_SIZE,
         BULLET_SIZE,
-        owner->shape->x + owner->shape->width/2,
-        owner->shape->y,
-        owner->shape->color
+        owner->shape.x + owner->shape.width/2.0,
+        owner->shape.y,
+        owner->shape.color
     );
 
-    if(!bullet->capsule) {
-        logerror("Failed to create bullet capsule");
-        return NULL;
+    if(!checkBullet(bullet)) {
+        logerror("Failed to create bullet");
     }
 
-    sprintf(bullet->id, "bullet_%d_%s", owner->bullet_count, owner->id);
-    bullet->course = owner->course;
-    bullet->owner = owner;
+    printBullet(bullet);
 
+    loginfo("createBullet finish");
     return bullet;
 }
 
-void renderBullet(Bullet *bullet, ALLEGRO_DISPLAY *display) {
-    renderElement(bullet->capsule, display);
+bool checkBullet(const Bullet bullet) {
+    return checkElement(bullet.capsule) && bullet.owner != NULL &&
+        bullet.id != NULL && strlen(bullet.id) > 0;
+}
+
+void renderBullet(const Bullet bullet, ALLEGRO_DISPLAY *display) {
+    loginfo("renderBullet enter");
+
+    renderElement(bullet.capsule, display);
+
+    loginfo("renderBullet finish");
 }
 
 bool destroyBullet(Bullet *bullet) {
+    loginfo("destroyBullet enter");
 
     if(!destroyElement(bullet->capsule)) {
         logerror("Failed to destroy bullet capsule");
         return false;
     }
 
-    free(bullet);
-
-    loginfo("Bullet destroyed");
+    loginfo("destroyBullet finish");
     return true;
 }
 
 void moveBullet(Bullet *bullet) {
+    loginfo("moveBullet enter");
     moveElement(bullet->capsule, bullet->course, BULLET_STEP_SIZE);
+    loginfo("moveBullet finish");
 }
 
-Bullet * fireShip(Ship *ship) {
-    Bullet *bullet = createBullet(ship);
-    if(!bullet) {
+Bullet fireShip(Ship *ship) {
+    loginfo("fireShip enter");
+
+    Bullet bullet = createBullet(ship);
+
+    if(checkBullet(bullet)) {
+        ship->bullet_count++;
+    } else {
         logerror("Failed to create bullet");
-        return NULL;
     }
 
-    ship->bullet_count++;
+    loginfo("fireShip finish");
 
     return bullet;
 }
 
-
-void pushBullet(Bullet *bullet, Bullet **array, int array_lenght) {
-
-    Bullet * new_array = NULL;
-
-    if(array_lenght == 0){
-        new_array = (Bullet *) malloc(sizeof(Bullet));
-    } else {
-        new_array = (Bullet *) realloc(*array, (array_lenght+1) * sizeof(Bullet));
-    }
-
-    if(new_array) {
-        new_array[array_lenght] = *bullet;
-        Bullet new_bullet = new_array[array_lenght];
-        *array = new_array;
-    } else {
-        logerror("Failed to push bullet");
-    }
+bool checkBulletShipColision(const Bullet bullet, const Ship ship) {
+    loginfo("checkBulletShipColision");
+    return checkElementsColision(bullet.capsule, ship.shape);
 }
 
-int popBullet(Bullet *bullet, Bullet *array, int array_lenght) {
+bool checkBulletDisplayColision(const Bullet bullet) {
+    loginfo("checkBulletDisplayColision");
+    return checkElementDisplayColision(bullet.capsule);
+}
 
-    Bullet *new_array;
-    int i, new_array_length = 0;
+int pushBullet(const Bullet bullet, Bullet **array, int length) {
+    loginfo("pushBullet enter");
 
-    for(i=0; i<array_lenght; i++) {
-        if(array[i].id == bullet->id){
-            destroyBullet(&array[i]);
-        } else {
-            pushBullet(&array[i], &new_array, new_array_length);
-            new_array_length++;
+    if(!length)
+        *array = malloc(sizeof(Bullet));
+    else
+        *array = realloc(*array, (length+1) * sizeof(Bullet));
+
+
+    if(!*array) {
+        logerror("Failed to push bullet");
+        return length;
+    }
+
+    (*array)[length] = bullet;
+
+    length++;
+
+    loginfo("pushBullet finish");
+
+    return length;
+}
+
+int popBullet(const Bullet bullet, Bullet **array, int length) {
+    loginfo("popBullet enter");
+
+    int i, j;
+
+    for(i=0; i<length; i++) {
+        if(!strcmp( (*array)[i].id , bullet.id )) {
+            for(j=i; j<length; j++)
+                array[j] = array[j+1];
+
+            length--;
+
+            *array = realloc(*array, (length) * sizeof(Bullet));
+
+            break;
         }
     }
 
-    destroyBullet(bullet);
-    free(array);
-    array = new_array;
+    loginfo("popBullet finish");
 
-    return new_array_length;
+    return length;
+}
+
+void printBullet(const Bullet bullet) {
+    printf("\nBullet %s\ncourse: %d\n",
+        bullet.id,
+        bullet.course
+    );
+    printShip( *(bullet.owner) );
+    printElement(bullet.capsule);
+}
+
+void printBulletArray(const Bullet *array, int length) {
+    int i=0;
+    for(i=0; i<length; i++) {printBullet(array[i]); }
 }

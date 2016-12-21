@@ -7,6 +7,7 @@
 
 void clearDisplay(ALLEGRO_DISPLAY *display);
 
-void renderDisplay(ALLEGRO_DISPLAY *display, int score, double timestamp);
+void renderDisplay(ALLEGRO_DISPLAY *display, int level, int score, double timestamp,
+    ALLEGRO_FONT *size);
 
 #endif

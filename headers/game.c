@@ -79,12 +79,20 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
-    int i, j, bullets_count = 0, enemies_count = 0, score = 0;
-    double last_enemy_created = FIRST_ENEMY_OFFSET;
+    int i, j, bullets_count = 0, enemies_count = 0, score = 0, level = 1;
+    double last_enemy_created = FIRST_ENEMY_OFFSET, level_factor;
     bool quit = false;
 
     int move_key_1 = -1, move_key_2 = -1;
     bool fire_key = false;
+
+    ALLEGRO_FONT *size = NULL;
+
+    size = al_load_font("arial.ttf", 15, 1);
+    if(!size) {
+        logerror("Failed to load font");
+        return false;
+    }
 
     loginfo("startGame enter");
 
@@ -104,6 +112,10 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
         if(e.type == ALLEGRO_EVENT_TIMER) {
 
+            level = ((int) e.any.timestamp / GAME_LEVEL_INTERVAL) + 1;
+
+            level_factor = level / GAME_LEVEL_DIFFICULTY_FACTOR;
+
             /***** Rendering *****/
 
             clearDisplay(display);
@@ -116,7 +128,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<enemies_count; i++)
                 renderShip(enemies[i], display);
 
-            renderDisplay(display, score, e.any.timestamp);
+            renderDisplay(display, level, score, e.any.timestamp, size);
 
             /***** Game action *****/
 
@@ -130,13 +142,13 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
 
             // Spawn enemies
-            if(last_enemy_created + ENEMY_SPAWN_INTERVAL < e.any.timestamp) {
+            if(last_enemy_created + ENEMY_SPAWN_INTERVAL / level_factor < e.any.timestamp) {
                 enemies_count = spawnEnemy(&enemies, enemies_count, e.any.timestamp);
                 last_enemy_created = e.any.timestamp;
             }
 
             for(i=0; i<enemies_count; i++) {
-                new_bullet = fireShip(&enemies[i], ENEMY_FIRE_INTERVAL, e);
+                new_bullet = fireShip(&enemies[i], ENEMY_FIRE_INTERVAL / level_factor, e);
                 if(checkBullet(new_bullet))
                     bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
             }

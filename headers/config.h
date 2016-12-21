@@ -23,4 +23,7 @@ const double ENEMY_FIRE_INTERVAL;
 const int BULLET_SIZE;
 const int BULLET_STEP_SIZE;
 
+const int GAME_LEVEL_INTERVAL;
+const double GAME_LEVEL_DIFFICULTY_FACTOR;
+
 #endif

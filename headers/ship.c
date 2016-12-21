@@ -129,7 +129,7 @@ int pushShip(const Ship ship, Ship **array, int length) {
 }
 
 int popShip(const Ship ship, Ship **array, int length) {
-    loginfo("popShip enter");
+    // loginfo("popShip enter");
 
     int i, j;
 
@@ -166,7 +166,7 @@ int popShip(const Ship ship, Ship **array, int length) {
 
     // printShipArray(*array, length);
 
-    loginfo("popShip finish");
+    // loginfo("popShip finish");
 
     return length;
 }

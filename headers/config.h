@@ -5,6 +5,11 @@
 
 const int FPS;
 
+const char* FONT_FAMILY;
+const int FONT_SIZE_SM;
+const int FONT_SIZE_MD;
+const int FONT_SIZE_LG;
+
 const int DISPLAY_WIDTH;
 const int DISPLAY_HEIGHT;
 const int DISPLAY_COLOR_RED;

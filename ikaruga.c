@@ -1,5 +1,6 @@
 #include "headers/common.h"
 #include "headers/game.h"
+#include "headers/menu.h"
 
 #include <allegro5/allegro.h>
 
@@ -13,6 +14,8 @@ int main () {
         logerror("[FATAL] Failed to init game. Exiting...\n");
         return 0;
     }
+
+    mainMenu(display, event_queue);
 
     startGame(display, event_queue);
 

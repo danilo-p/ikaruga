@@ -88,7 +88,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     ALLEGRO_FONT *size = NULL;
 
-    size = al_load_font("arial.ttf", 15, 1);
+    size = al_load_font(FONT_FAMILY, FONT_SIZE_SM, 1);
     if(!size) {
         logerror("Failed to load font");
         return false;
@@ -128,7 +128,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<enemies_count; i++)
                 renderShip(enemies[i], display);
 
-            renderDisplay(display, level, score, e.any.timestamp, size);
+            renderDisplay(display, level, score, e.any.timestamp, size, FONT_SIZE_SM);
 
             /***** Game action *****/
 

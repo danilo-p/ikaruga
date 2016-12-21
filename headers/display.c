@@ -24,7 +24,7 @@ void clearDisplay(ALLEGRO_DISPLAY *display) {
 }
 
 void renderDisplay(ALLEGRO_DISPLAY *display, int level, int score, double timestamp,
-    ALLEGRO_FONT *size) {
+    ALLEGRO_FONT *size, int font_size) {
     // loginfo("renderDisplay enter");
 
     char score_text[255] = "", time_text[255] = "", level_text[255] = "";
@@ -37,8 +37,8 @@ void renderDisplay(ALLEGRO_DISPLAY *display, int level, int score, double timest
 
     if(size) {
         al_draw_text(size, al_map_rgb(0, 0, 0), 5, 5, 0, score_text);
-        al_draw_text(size, al_map_rgb(0, 0, 0), 5, 25, 0, time_text);
-        al_draw_text(size, al_map_rgb(0, 0, 0), 5, 45, 0, level_text);
+        al_draw_text(size, al_map_rgb(0, 0, 0), 5, 10+font_size, 0, time_text);
+        al_draw_text(size, al_map_rgb(0, 0, 0), 5, 30+font_size, 0, level_text);
     }
 
     al_flip_display();

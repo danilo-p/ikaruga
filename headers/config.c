@@ -4,6 +4,11 @@
 
 const int FPS = 20;
 
+const char* FONT_FAMILY = "roboto.ttf";
+const int FONT_SIZE_SM = 15;
+const int FONT_SIZE_MD = 20;
+const int FONT_SIZE_LG = 30;
+
 const int DISPLAY_WIDTH        = 500;
 const int DISPLAY_HEIGHT       = 500;
 const int DISPLAY_COLOR_RED    = 255;

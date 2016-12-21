@@ -1,5 +1,7 @@
 #include <allegro5/allegro.h>
 
+#include "ship.h"
+
 #ifndef GAME_H
 #define GAME_H
 
@@ -11,5 +13,9 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
 bool startGame(ALLEGRO_DISPLAY *display,
         ALLEGRO_EVENT_QUEUE *event_queue);
+
+int spawnEnemy(Ship **array, int length, double timestamp);
+
+void moveEnemy(const Ship hero, Ship *enemy);
 
 #endif

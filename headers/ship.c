@@ -7,15 +7,18 @@
 #include "element.h"
 #include "ship.h"
 
-Ship createShip(char id[255], int x, int y, direction course, ALLEGRO_COLOR color) {
-    loginfo("createShip enter");
+Ship createShip(char id[255], int x, int y, direction course, type target) {
+    // loginfo("createShip enter");
 
     Ship ship = (Ship) {
         .course = course,
+        .target = target,
         .bullet_count = 0,
         .last_bullet_fired = 0,
         .id = "",
     };
+
+    ALLEGRO_COLOR color = getTypeColor(target);
 
     ship.shape = createElement(SHIP_SIZE, SHIP_SIZE, x, y, color);
 
@@ -25,9 +28,14 @@ Ship createShip(char id[255], int x, int y, direction course, ALLEGRO_COLOR colo
         logerror("Failed to create ship shape");
     }
 
-    loginfo("createShip finish");
+    // loginfo("createShip finish");
 
     return ship;
+}
+
+void setShipTarget(Ship *ship, type target) {
+    ship->target = target;
+    ship->shape.color = getTypeColor(target);
 }
 
 bool checkShip(const Ship ship) {
@@ -35,40 +43,51 @@ bool checkShip(const Ship ship) {
 }
 
 void renderShip(const Ship ship, ALLEGRO_DISPLAY *display) {
-    loginfo("renderShip enter");
+    // loginfo("renderShip enter");
 
     renderElement(ship.shape, display);
 
-    loginfo("renderShip finish");
+    // loginfo("renderShip finish");
 }
 
-void moveShip(Ship *ship, direction course) {
-    loginfo("moveShip enter");
+void moveShip(Ship *ship, direction course, int step_size) {
+    moveElement(
+        &(ship->shape),
+        course,
+        step_size
+    );
 
-    moveElement( &(ship->shape), course, SHIP_STEP_SIZE);
+    // Prevent from ships override the edges of the display
 
-    loginfo("moveShip finish");
+    if(ship->shape.x < 0)
+        ship->shape.x = 0;
+    else if(ship->shape.x + SHIP_SIZE > DISPLAY_WIDTH)
+        ship->shape.x = DISPLAY_WIDTH - SHIP_SIZE;
+
+    if(ship->shape.y < 0)
+        ship->shape.y = 0;
+    else if(ship->shape.y + SHIP_SIZE > DISPLAY_HEIGHT)
+        ship->shape.y = DISPLAY_HEIGHT - SHIP_SIZE;
 }
 
 bool destroyShip(Ship *ship) {
-    loginfo("destroyShip enter");
+    // loginfo("destroyShip enter");
 
     if(!destroyElement(ship->shape)) {
         logerror("Failed to destroy ship shape");
         return false;
     }
 
-    loginfo("destroyShip finish");
+    // loginfo("destroyShip finish");
     return true;
 }
 
 bool checkShipsColision(const Ship ship_1, const Ship ship_2) {
-    loginfo("checkShipsColision");
+    // loginfo("checkShipsColision");
     return checkElementsColision(ship_1.shape, ship_2.shape);
 }
 
 bool checkShipDisplayColision(const Ship ship) {
-    loginfo("checkShipDisplayColision");
     return checkElementDisplayColision(ship.shape);
 }
 
@@ -87,7 +106,7 @@ void printShipArray(const Ship *array, int length) {
 }
 
 int pushShip(const Ship ship, Ship **array, int length) {
-    loginfo("pushShip enter");
+    // loginfo("pushShip enter");
 
     if(!length)
         *array = malloc(sizeof(Ship));
@@ -104,26 +123,26 @@ int pushShip(const Ship ship, Ship **array, int length) {
 
     length++;
 
-    loginfo("pushShip finish");
+    // loginfo("pushShip finish");
 
     return length;
 }
 
 int popShip(const Ship ship, Ship **array, int length) {
-    loginfo("popShip enter");
+    // loginfo("popShip enter");
 
     int i, j;
 
-    printf("\n\n\narray[%d]: \n\n", length);
+    // printf("\n\n\narray[%d]: \n\n", length);
 
-    printShipArray(*array, length);
+    // printShipArray(*array, length);
 
-    loginfo("Trying to find ship");
+    // loginfo("Trying to find ship");
 
     for(i=0; i<length; i++) {
         if(!strcmp( (*array)[i].id , ship.id )) {
 
-            loginfo("Ship found");
+            // loginfo("Ship found");
 
             destroyShip( &((*array)[i]) );
 
@@ -143,11 +162,11 @@ int popShip(const Ship ship, Ship **array, int length) {
         }
     }
 
-    printf("\n\n\nupdated array[%d]: \n\n", length);
+    // printf("\n\n\nupdated array[%d]: \n\n", length);
 
-    printShipArray(*array, length);
+    // printShipArray(*array, length);
 
-    loginfo("popShip finish");
+    // loginfo("popShip finish");
 
     return length;
 }

@@ -6,7 +6,7 @@
 
 
 void clearDisplay(ALLEGRO_DISPLAY *display) {
-    loginfo("clearDisplay enter");
+    // loginfo("clearDisplay enter");
 
     ALLEGRO_COLOR display_color = al_map_rgb(
         DISPLAY_COLOR_RED,
@@ -17,14 +17,14 @@ void clearDisplay(ALLEGRO_DISPLAY *display) {
     al_set_target_bitmap(al_get_backbuffer(display));
     al_clear_to_color(display_color);
 
-    loginfo("clearDisplay finish");
+    // loginfo("clearDisplay finish");
 }
 
 void renderDisplay(ALLEGRO_DISPLAY *display) {
-    loginfo("renderDisplay enter");
+    // loginfo("renderDisplay enter");
 
     al_set_target_bitmap(al_get_backbuffer(display));
     al_flip_display();
 
-    loginfo("renderDisplay finish");
+    // loginfo("renderDisplay finish");
 }

@@ -9,9 +9,9 @@
 #include "ship.h"
 
 Bullet createBullet(Ship *owner) {
-    loginfo("createBullet enter");
+    // loginfo("createBullet enter");
 
-    printShip(*owner);
+    // printShip(*owner);
 
     Bullet bullet = (Bullet) {
         .course = 0,
@@ -21,6 +21,7 @@ Bullet createBullet(Ship *owner) {
 
     sprintf(bullet.id, "bullet_%d_%s", owner->bullet_count, owner->id);
     bullet.course = owner->course;
+    bullet.target = owner->target;
     bullet.owner = owner;
 
     bullet.capsule = createElement(
@@ -35,9 +36,9 @@ Bullet createBullet(Ship *owner) {
         logerror("Failed to create bullet");
     }
 
-    printBullet(bullet);
+    // printBullet(bullet);
 
-    loginfo("createBullet finish");
+    // loginfo("createBullet finish");
     return bullet;
 }
 
@@ -47,33 +48,33 @@ bool checkBullet(const Bullet bullet) {
 }
 
 void renderBullet(const Bullet bullet, ALLEGRO_DISPLAY *display) {
-    loginfo("renderBullet enter");
+    // loginfo("renderBullet enter");
 
     renderElement(bullet.capsule, display);
 
-    loginfo("renderBullet finish");
+    // loginfo("renderBullet finish");
 }
 
 bool destroyBullet(Bullet *bullet) {
-    loginfo("destroyBullet enter");
+    // loginfo("destroyBullet enter");
 
     if(!destroyElement(bullet->capsule)) {
         logerror("Failed to destroy bullet capsule");
         return false;
     }
 
-    loginfo("destroyBullet finish");
+    // loginfo("destroyBullet finish");
     return true;
 }
 
 void moveBullet(Bullet *bullet) {
-    loginfo("moveBullet enter");
+    // loginfo("moveBullet enter");
     moveElement( &(bullet->capsule), bullet->course, BULLET_STEP_SIZE);
-    loginfo("moveBullet finish");
+    // loginfo("moveBullet finish");
 }
 
 Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
-    loginfo("fireShip enter");
+    // loginfo("fireShip enter");
 
     Bullet bullet = (Bullet) {
         .course = 0,
@@ -98,23 +99,23 @@ Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
         logerror("Failed to create bullet");
     }
 
-    loginfo("fireShip finish");
+    // loginfo("fireShip finish");
 
     return bullet;
 }
 
 bool checkBulletShipColision(const Bullet bullet, const Ship ship) {
-    loginfo("checkBulletShipColision");
+    // loginfo("checkBulletShipColision");
     return checkElementsColision(bullet.capsule, ship.shape);
 }
 
 bool checkBulletDisplayColision(const Bullet bullet) {
-    loginfo("checkBulletDisplayColision");
+    // loginfo("checkBulletDisplayColision");
     return checkElementDisplayColision(bullet.capsule);
 }
 
 int pushBullet(const Bullet bullet, Bullet **array, int length) {
-    loginfo("pushBullet enter");
+    // loginfo("pushBullet enter");
 
     if(!length)
         *array = malloc(sizeof(Bullet));
@@ -131,26 +132,26 @@ int pushBullet(const Bullet bullet, Bullet **array, int length) {
 
     length++;
 
-    loginfo("pushBullet finish");
+    // loginfo("pushBullet finish");
 
     return length;
 }
 
 int popBullet(const Bullet bullet, Bullet **array, int length) {
-    loginfo("popBullet enter");
+    // loginfo("popBullet enter");
 
     int i, j;
 
-    printf("\n\n\narray[%d]: \n\n", length);
+    // printf("\n\n\narray[%d]: \n\n", length);
+    //
+    // printBulletArray(*array, length);
 
-    printBulletArray(*array, length);
-
-    loginfo("Trying to find bullet");
+    // loginfo("Trying to find bullet");
 
     for(i=0; i<length; i++) {
         if(!strcmp( (*array)[i].id , bullet.id )) {
 
-            loginfo("Bullet found");
+            // loginfo("Bullet found");
 
             destroyBullet( &((*array)[i]) );
 
@@ -170,11 +171,11 @@ int popBullet(const Bullet bullet, Bullet **array, int length) {
         }
     }
 
-    printf("\n\n\nupdated array[%d]: \n\n", length);
+    // printf("\n\n\nupdated array[%d]: \n\n", length);
 
-    printBulletArray(*array, length);
+    // printBulletArray(*array, length);
 
-    loginfo("popBullet finish");
+    // loginfo("popBullet finish");
 
     return length;
 }

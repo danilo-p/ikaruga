@@ -9,18 +9,21 @@
 typedef struct {
     char id[255];
     direction course;
+    type target;
     Element shape;
     double last_bullet_fired;
     int bullet_count;
 } Ship;
 
-Ship createShip(char id[255], int x, int y, direction course, ALLEGRO_COLOR color);
+Ship createShip(char id[255], int x, int y, direction course, type target);
+
+void setShipTarget(Ship *ship, type target);
 
 bool checkShip(const Ship ship);
 
 void renderShip(const Ship ship, ALLEGRO_DISPLAY *display);
 
-void moveShip(Ship *ship, direction course);
+void moveShip(Ship *ship, direction course, int step_size);
 
 bool destroyShip(Ship *ship);
 

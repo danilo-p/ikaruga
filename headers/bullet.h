@@ -9,6 +9,7 @@
 typedef struct {
     char id[255];
     direction course;
+    type target;
     Ship *owner;
     Element capsule;
 } Bullet;

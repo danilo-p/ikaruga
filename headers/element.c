@@ -40,7 +40,7 @@ bool destroyElement(Element element) {
 
     element.bitmap = NULL;
 
-    loginfo("Element destroyed");
+    // loginfo("Element destroyed");
 
     return true;
 }

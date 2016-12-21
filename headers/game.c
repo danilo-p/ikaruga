@@ -74,22 +74,21 @@ void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
 bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
-    Ship hero, *enemies = NULL, new_enemy;
+    Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
-    int i, bullets_count = 0, enemies_count = 0;
+    int i, j, bullets_count = 0, enemies_count = 0;
     double last_enemy_created = FIRST_ENEMY_OFFSET;
     bool quit = false;
 
     int move_key_1 = -1, move_key_2 = -1;
-    bool space_key = false;
+    bool fire_key = false;
 
     loginfo("startGame enter");
 
     int HERO_SPAWN_X = (DISPLAY_WIDTH/2) - (SHIP_SIZE/2);
     int HERO_SPAWN_Y = DISPLAY_HEIGHT - (SHIP_SIZE * 2);
 
-    hero = createShip("hero", HERO_SPAWN_X, HERO_SPAWN_Y, up,
-        al_map_rgb(TYPE_1_RED, TYPE_1_GREEN, TYPE_1_BLUE));
+    hero = createShip("hero", HERO_SPAWN_X, HERO_SPAWN_Y, up, alpha);
 
     if(!checkShip(hero)) {
         logerror("Failed to create hero. Game finished.");
@@ -102,120 +101,80 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
         if(e.type == ALLEGRO_EVENT_TIMER) {
 
-            printf("\n\n");
-
-            loginfo("timer event enter");
-
-            // Rendering the game
+            /***** Rendering *****/
 
             clearDisplay(display);
 
             renderShip(hero, display);
 
-            printBulletArray(bullets, bullets_count);
-
-            for(i=0; i<bullets_count; i++) {
+            for(i=0; i<bullets_count; i++)
                 renderBullet(bullets[i], display);
-            }
+
+            for(i=0; i<enemies_count; i++)
+                renderShip(enemies[i], display);
 
             renderDisplay(display);
 
-            // Game logic
+            /***** Game action *****/
 
-            switch(move_key_1) {
-                case ALLEGRO_KEY_W:
-                    if(hero.shape.y > 0)
-                        moveShip(&hero, up);
-                break;
-
-                case ALLEGRO_KEY_S:
-                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
-                        moveShip(&hero, down);
-                break;
-
-                case ALLEGRO_KEY_A:
-                    if(hero.shape.x > 0)
-                        moveShip(&hero, left);
-                break;
-
-                case ALLEGRO_KEY_D:
-                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
-                        moveShip(&hero, right);
-                break;
-            }
-
-            switch(move_key_2) {
-                case ALLEGRO_KEY_W:
-                    if(hero.shape.y > 0)
-                        moveShip(&hero, up);
-                break;
-
-                case ALLEGRO_KEY_S:
-                    if(hero.shape.y < DISPLAY_HEIGHT - SHIP_SIZE)
-                        moveShip(&hero, down);
-                break;
-
-                case ALLEGRO_KEY_A:
-                    if(hero.shape.x > 0)
-                        moveShip(&hero, left);
-                break;
-
-                case ALLEGRO_KEY_D:
-                    if(hero.shape.x < DISPLAY_WIDTH - SHIP_SIZE)
-                        moveShip(&hero, right);
-                break;
-            }
-
-            if(space_key) {
+            // Hero actions
+            moveShip(&hero, move_key_1, SHIP_STEP_SIZE);
+            moveShip(&hero, move_key_2, SHIP_STEP_SIZE);
+            if(fire_key) {
                 new_bullet = fireShip(&hero, e);
                 if(checkBullet(new_bullet))
                     bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
             }
 
-            // if(last_enemy_created + ENEMY_SPAWN_INTERVAL < e.any.timestamp) {
-            //     char id[255] = "";
-            //     int type = rand() % 2;
-            //     int x = rand() % DISPLAY_WIDTH;
-            //     int y = (SHIP_SIZE * 2);
-            //
-            //     sprintf(id, "enemy_%d", enemies_count);
-            //
-            //     new_enemy = createShip(
-            //         id,
-            //         rand() % DISPLAY_WIDTH,
-            //         (SHIP_SIZE * 2),
-            //         up,
-            //         type ? al_map_rgb(255, 0, 0)
-            //     );
-            //     if(checkShip(new_enemy))
-            //         enemies_count = pushShip(new_enemy, &enemies, enemies_count);
-            // }
-
-            // Moving elements
-
-            for(i=0; i<bullets_count; i++) { moveBullet( &(bullets[i]) ); }
-
-            for(i=0; i<bullets_count; i++) {
-                printBullet(bullets[i]);
-
-                if(checkBulletDisplayColision(bullets[i])) {
-                    bullets_count = popBullet(bullets[i], &bullets, bullets_count);
-                }
+            // Spawn enemies
+            if(last_enemy_created + ENEMY_SPAWN_INTERVAL < e.any.timestamp) {
+                enemies_count = spawnEnemy(&enemies, enemies_count, e.any.timestamp);
+                last_enemy_created = e.any.timestamp;
             }
 
-            loginfo("timer event finish");
+            for(i=0; i<enemies_count; i++) {
+                new_bullet = fireShip(&enemies[i], e);
+                if(checkBullet(new_bullet))
+                    bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
+            }
 
-            printf("\n\n");
+            /***** Movement *****/
+
+            // Moving bullets
+            for(i=0; i<bullets_count; i++)
+                moveBullet( &(bullets[i]) );
+
+            // Moving enemies
+            for(i=0; i<enemies_count; i++)
+                moveEnemy(hero, &(enemies[i]) );
+
+            /***** Colisions check *****/
+
+            // Checking hero - enemy colisions
+            for(i=0; i<enemies_count; i++)
+                if(checkShipsColision(hero, enemies[i])) quit = true;
+
+            // Checking hero bullets - enemy colisions
+            for(i=0; i<enemies_count; i++)
+                for(j=0; j<bullets_count; j++)
+                    if( enemies[i].target == bullets[j].target &&
+                        checkBulletShipColision(bullets[j], enemies[i]) &&
+                        strstr(bullets[j].id, "hero")
+                    ) {
+                        enemies_count = popShip(enemies[i], &enemies, enemies_count);
+                        bullets_count = popBullet(bullets[j], &bullets, bullets_count);
+                    }
+
+            for(i=0; i<bullets_count; i++)
+                if(checkBulletDisplayColision(bullets[i]))
+                    bullets_count = popBullet(bullets[i], &bullets, bullets_count);
+
         } else if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
-            printf("\n\n");
-            loginfo("key down event enter");
-
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
                 case ALLEGRO_KEY_S:
                 case ALLEGRO_KEY_A:
                 case ALLEGRO_KEY_D:
-                    loginfo("move key down");
                     // If both keys are different from the pressed key
                     if(move_key_1 != e.keyboard.keycode &&
                             move_key_2 != e.keyboard.keycode) {
@@ -235,30 +194,27 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
                     }
                 break;
 
-                case ALLEGRO_KEY_SPACE:
-                    loginfo("space key down");
-                    space_key = true;
+                case ALLEGRO_KEY_H:
+                    fire_key = true;
+                break;
+
+                case ALLEGRO_KEY_G:
+                    if(hero.target == alpha)
+                        setShipTarget(&hero, gama);
+                    else if(hero.target == gama)
+                        setShipTarget(&hero, alpha);
                 break;
 
                 case ALLEGRO_KEY_ENTER:
-                    loginfo("quit key down");
                     quit = true;
                 break;
             }
-
-            loginfo("key down event finish");
-            printf("\n\n");
         } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
-            printf("\n\n");
-            loginfo("key up event enter");
-
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
                 case ALLEGRO_KEY_S:
                 case ALLEGRO_KEY_A:
                 case ALLEGRO_KEY_D:
-                    loginfo("move key up");
-
                     if(move_key_1 == e.keyboard.keycode)
                         move_key_1 = -1;
 
@@ -267,14 +223,10 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
                 break;
 
-                case ALLEGRO_KEY_SPACE:
-                    loginfo("space key up");
-                    space_key = false;
+                case ALLEGRO_KEY_H:
+                    fire_key = false;
                 break;
             }
-
-            loginfo("key up event finish");
-            printf("\n\n");
         }
     }
 
@@ -285,4 +237,37 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     loginfo("startGame finish");
     return true;
+}
+
+int spawnEnemy(Ship **array, int length, double timestamp) {
+
+    srand(timestamp*10000);
+
+    type target = rand() % 2 == 0 ? alpha : gama;
+    int x = rand() % (DISPLAY_WIDTH - SHIP_SIZE);
+    char id[255] = "";
+
+    sprintf(id, "enemy_%.0lf", timestamp);
+
+    Ship enemy = createShip(id, x, 0, down, target);
+
+    if(!checkShip(enemy)) {
+        return length;
+    }
+
+    return pushShip(enemy, array, length);
+}
+
+void moveEnemy(const Ship hero, Ship *enemy) {
+
+    if(enemy->shape.x < hero.shape.x)
+        moveShip(enemy, right, ENEMY_STEP_SIZE);
+    else
+        moveShip(enemy, left, ENEMY_STEP_SIZE);
+
+    if(enemy->shape.y < hero.shape.y)
+        moveShip(enemy, down, ENEMY_STEP_SIZE);
+    else
+        moveShip(enemy, up, ENEMY_STEP_SIZE);
+
 }

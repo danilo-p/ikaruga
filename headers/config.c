@@ -18,6 +18,6 @@ const int BULLET_SIZE      = 5;
 const int BULLET_STEP_SIZE = 15;
 
 const int FIRST_ENEMY_OFFSET   = 0;
-const int ENEMY_SPAWN_INTERVAL = 1;
-const int ENEMY_STEP_SIZE      = 5;
+const int ENEMY_SPAWN_INTERVAL = 3;
+const int ENEMY_STEP_SIZE      = 2;
 const int ENEMY_FIRE_INTERVAL  = 1;

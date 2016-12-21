@@ -8,28 +8,26 @@
 #include "element.h"
 #include "ship.h"
 
-Bullet createBullet(Ship *owner) {
+Bullet createBullet(const Ship owner) {
     // loginfo("createBullet enter");
 
-    // printShip(*owner);
+    // printShip(owner);
 
     Bullet bullet = (Bullet) {
         .course = 0,
-        .owner = NULL,
         .id = ""
     };
 
-    sprintf(bullet.id, "bullet_%d_%s", owner->bullet_count, owner->id);
-    bullet.course = owner->course;
-    bullet.target = owner->target;
-    bullet.owner = owner;
+    sprintf(bullet.id, "bullet_%d_%s", owner.bullet_count, owner.id);
+    bullet.course = owner.course;
+    bullet.target = owner.target;
 
     bullet.capsule = createElement(
         BULLET_SIZE,
         BULLET_SIZE,
-        (owner->shape.x) + (owner->shape.width/2) - (BULLET_SIZE/2),
-        owner->shape.y,
-        owner->shape.color
+        (owner.shape.x) + (owner.shape.width/2) - (BULLET_SIZE/2),
+        owner.shape.y,
+        owner.shape.color
     );
 
     if(!checkBullet(bullet)) {
@@ -43,7 +41,7 @@ Bullet createBullet(Ship *owner) {
 }
 
 bool checkBullet(const Bullet bullet) {
-    return checkElement(bullet.capsule) && bullet.owner != NULL &&
+    return checkElement(bullet.capsule) &&
         bullet.id != NULL && strlen(bullet.id) > 0;
 }
 
@@ -78,7 +76,6 @@ Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
 
     Bullet bullet = (Bullet) {
         .course = 0,
-        .owner = NULL,
         .id = ""
     };
 
@@ -90,7 +87,7 @@ Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
 
     // Bullet ratio ok. Create the bullet.
 
-    bullet = createBullet(ship);
+    bullet = createBullet(*ship);
 
     if(checkBullet(bullet)) {
         ship->bullet_count++;
@@ -185,7 +182,6 @@ void printBullet(const Bullet bullet) {
         bullet.id,
         bullet.course
     );
-    printShip( *(bullet.owner) );
     printElement(bullet.capsule);
 }
 

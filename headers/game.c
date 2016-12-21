@@ -154,6 +154,13 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<enemies_count; i++)
                 if(checkShipsColision(hero, enemies[i])) quit = true;
 
+            // Checking enemy bullets - hero colisions
+            for(i=0; i<bullets_count; i++)
+                if( hero.target == bullets[i].target &&
+                    checkBulletShipColision(bullets[i], hero) &&
+                    strstr(bullets[i].id, "enemy")
+                ) quit = true;
+
             // Checking hero bullets - enemy colisions
             for(i=0; i<enemies_count; i++)
                 for(j=0; j<bullets_count; j++)
@@ -163,8 +170,13 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
                     ) {
                         enemies_count = popShip(enemies[i], &enemies, enemies_count);
                         bullets_count = popBullet(bullets[j], &bullets, bullets_count);
+
+                        // Exit the first loop to avoid accessing invalid
+                        // pointers on the next iteration
+                        break;
                     }
 
+            // Checking bullet - display colisions
             for(i=0; i<bullets_count; i++)
                 if(checkBulletDisplayColision(bullets[i]))
                     bullets_count = popBullet(bullets[i], &bullets, bullets_count);

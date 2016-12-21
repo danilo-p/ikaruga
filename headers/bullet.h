@@ -23,7 +23,7 @@ bool destroyBullet(Bullet *bullet);
 
 void moveBullet(Bullet *bullet);
 
-Bullet fireShip(Ship *ship, ALLEGRO_EVENT e);
+Bullet fireShip(Ship *ship, double interval, ALLEGRO_EVENT e);
 
 bool checkBulletShipColision(const Bullet bullet, const Ship ship);
 

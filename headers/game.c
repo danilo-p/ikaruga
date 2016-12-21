@@ -1,5 +1,6 @@
 #include <allegro5/allegro.h>
-#include <allegro5/allegro_image.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <allegro5/allegro_primitives.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +45,8 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
 
     al_install_keyboard();
     al_init_primitives_addon();
+    al_init_font_addon();
+    al_init_ttf_addon();
 
     al_register_event_source(*event_queue, al_get_display_event_source(*display));
     al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
@@ -76,7 +79,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
-    int i, j, bullets_count = 0, enemies_count = 0;
+    int i, j, bullets_count = 0, enemies_count = 0, score = 0;
     double last_enemy_created = FIRST_ENEMY_OFFSET;
     bool quit = false;
 
@@ -113,7 +116,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<enemies_count; i++)
                 renderShip(enemies[i], display);
 
-            renderDisplay(display);
+            renderDisplay(display, score, e.any.timestamp);
 
             /***** Game action *****/
 
@@ -121,7 +124,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             moveShip(&hero, move_key_1, SHIP_STEP_SIZE);
             moveShip(&hero, move_key_2, SHIP_STEP_SIZE);
             if(fire_key) {
-                new_bullet = fireShip(&hero, e);
+                new_bullet = fireShip(&hero, SHIP_FIRE_INTERVAL, e);
                 if(checkBullet(new_bullet))
                     bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
             }
@@ -133,7 +136,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
 
             for(i=0; i<enemies_count; i++) {
-                new_bullet = fireShip(&enemies[i], e);
+                new_bullet = fireShip(&enemies[i], ENEMY_FIRE_INTERVAL, e);
                 if(checkBullet(new_bullet))
                     bullets_count = pushBullet(new_bullet, &bullets, bullets_count);
             }
@@ -170,7 +173,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
                     ) {
                         enemies_count = popShip(enemies[i], &enemies, enemies_count);
                         bullets_count = popBullet(bullets[j], &bullets, bullets_count);
-
+                        score++;
                         // Exit the first loop to avoid accessing invalid
                         // pointers on the next iteration
                         break;

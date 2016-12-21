@@ -7,6 +7,6 @@
 
 void clearDisplay(ALLEGRO_DISPLAY *display);
 
-void renderDisplay(ALLEGRO_DISPLAY *display);
+void renderDisplay(ALLEGRO_DISPLAY *display, int score, double timestamp);
 
 #endif

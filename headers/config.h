@@ -18,7 +18,7 @@ const double SHIP_FIRE_INTERVAL;
 const int FIRST_ENEMY_OFFSET;
 const int ENEMY_SPAWN_INTERVAL;
 const int ENEMY_STEP_SIZE;
-const int ENEMY_FIRE_INTERVAL;
+const double ENEMY_FIRE_INTERVAL;
 
 const int BULLET_SIZE;
 const int BULLET_STEP_SIZE;

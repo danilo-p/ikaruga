@@ -71,7 +71,7 @@ void moveBullet(Bullet *bullet) {
     // loginfo("moveBullet finish");
 }
 
-Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
+Bullet fireShip(Ship *ship, double interval, ALLEGRO_EVENT e) {
     // loginfo("fireShip enter");
 
     Bullet bullet = (Bullet) {
@@ -80,7 +80,7 @@ Bullet fireShip(Ship *ship, ALLEGRO_EVENT e) {
     };
 
     // Check fire ratio
-    if(ship->last_bullet_fired + SHIP_FIRE_INTERVAL > e.any.timestamp) {
+    if(ship->last_bullet_fired + interval > e.any.timestamp) {
         // Return empty bullet
         return bullet;
     }

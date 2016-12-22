@@ -26,9 +26,9 @@ void logerror(const char *message) {
 
 ALLEGRO_COLOR getTypeColor(type t) {
     if(t == alpha)
-        return al_map_rgb(230,126,34);
+        return al_map_rgb(255,0,0);
     else if(t == gama)
-        return al_map_rgb(142,68,173);
+        return al_map_rgb(0,255,0);
 
     return al_map_rgb(0,0,0);
 }

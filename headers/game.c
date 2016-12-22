@@ -11,6 +11,7 @@
 #include "display.h"
 #include "game.h"
 #include "ship.h"
+#include "menu.h"
 
 int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
         ALLEGRO_EVENT_QUEUE **event_queue) {
@@ -80,7 +81,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
     Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
     int i, j, bullets_count = 0, enemies_count = 0, score = 0, level = 1;
-    double last_enemy_created = FIRST_ENEMY_OFFSET, level_factor;
+    double last_enemy_created = FIRST_ENEMY_OFFSET, level_factor, time_elapsed;
     bool quit = false;
 
     int move_key_1 = -1, move_key_2 = -1;
@@ -112,6 +113,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
         if(e.type == ALLEGRO_EVENT_TIMER) {
 
+            time_elapsed = e.any.timestamp;
             level = ((int) e.any.timestamp / GAME_LEVEL_INTERVAL) + 1;
 
             level_factor = level / GAME_LEVEL_DIFFICULTY_FACTOR;
@@ -128,7 +130,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             for(i=0; i<enemies_count; i++)
                 renderShip(enemies[i], display);
 
-            renderDisplay(display, level, score, e.any.timestamp, size, FONT_SIZE_SM);
+            renderGameDisplay(display, level, score, e.any.timestamp, size, FONT_SIZE_SM);
 
             /***** Game action *****/
 
@@ -232,8 +234,8 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
                         setShipTarget(&hero, alpha);
                 break;
 
-                case ALLEGRO_KEY_ENTER:
-                    quit = true;
+                case ALLEGRO_KEY_P:
+                    quit = (pauseMenu(display, event_queue) == 0);
                 break;
             }
         } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
@@ -256,6 +258,8 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
             }
         }
     }
+
+    gameFinishedMenu(display, score, time_elapsed);
 
     if(!destroyShip(&hero)) {
         logerror("Failed to destroy ship. Game finished");

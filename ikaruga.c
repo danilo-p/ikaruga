@@ -15,9 +15,18 @@ int main () {
         return 0;
     }
 
-    mainMenu(display, event_queue);
+    bool quit = false;
 
-    startGame(display, event_queue);
+    while(!quit) {
+        switch (mainMenu(display, event_queue)) {
+            case 1:
+                startGame(display, event_queue);
+            break;
+            case 0:
+                quit = true;
+            break;
+        }
+    }
 
     destroyGame(&display, &timer, &event_queue);
 

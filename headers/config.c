@@ -16,8 +16,8 @@ const int DISPLAY_COLOR_GREEN  = 255;
 const int DISPLAY_COLOR_BLUE   = 255;
 
 const int SHIP_SIZE      = 30;
-const int SHIP_STEP_SIZE = 10;
-const double SHIP_FIRE_INTERVAL = 0.3;
+const int SHIP_STEP_SIZE = 15;
+const double SHIP_FIRE_INTERVAL = 0.2;
 
 const int BULLET_SIZE      = 5;
 const int BULLET_STEP_SIZE = 15;
@@ -27,5 +27,5 @@ const int ENEMY_SPAWN_INTERVAL = 3;
 const int ENEMY_STEP_SIZE      = 2;
 const double ENEMY_FIRE_INTERVAL  = 1;
 
-const int GAME_LEVEL_INTERVAL = 15;
-const double GAME_LEVEL_DIFFICULTY_FACTOR = 2;
+const int GAME_LEVEL_INTERVAL = 30;
+const double GAME_LEVEL_DIFFICULTY_FACTOR = 1.5;

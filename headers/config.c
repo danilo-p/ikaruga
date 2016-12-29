@@ -5,16 +5,15 @@
 const int FPS = 20;
 
 const char* SCORE_FILE = "best_score.txt";
+
 const char* FONT_FAMILY = "roboto.ttf";
+
 const int FONT_SIZE_SM = 15;
 const int FONT_SIZE_MD = 20;
 const int FONT_SIZE_LG = 30;
 
 const int DISPLAY_WIDTH        = 1000;
 const int DISPLAY_HEIGHT       = 700;
-const int DISPLAY_COLOR_RED    = 255;
-const int DISPLAY_COLOR_GREEN  = 255;
-const int DISPLAY_COLOR_BLUE   = 255;
 
 const int SHIP_SIZE      = 30;
 const int SHIP_STEP_SIZE = 15;

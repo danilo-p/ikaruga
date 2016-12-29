@@ -7,7 +7,7 @@
 
 int getBestScore() {
     char buffer[255];
-    FILE *file = fopen("best_score.txt", "r");
+    FILE *file = fopen(SCORE_FILE, "r");
 
     if(!file) {
         logerror("Failed to open score file");
@@ -26,7 +26,7 @@ int getBestScore() {
 }
 
 bool setBestScore(int score) {
-    FILE *file = fopen("best_score.txt", "w");
+    FILE *file = fopen(SCORE_FILE, "w");
 
     if(!file) {
         logerror("Failed to open score file");

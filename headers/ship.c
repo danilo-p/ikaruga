@@ -8,8 +8,6 @@
 #include "ship.h"
 
 Ship createShip(char id[255], int x, int y, direction course, type target) {
-    // loginfo("createShip enter");
-
     Ship ship = (Ship) {
         .course = course,
         .target = target,
@@ -28,8 +26,6 @@ Ship createShip(char id[255], int x, int y, direction course, type target) {
         logerror("Failed to create ship shape");
     }
 
-    // loginfo("createShip finish");
-
     return ship;
 }
 
@@ -43,11 +39,7 @@ bool checkShip(const Ship ship) {
 }
 
 void renderShip(const Ship ship, ALLEGRO_DISPLAY *display) {
-    // loginfo("renderShip enter");
-
     renderElement(ship.shape, display);
-
-    // loginfo("renderShip finish");
 }
 
 void moveShip(Ship *ship, direction course, int step_size) {
@@ -57,8 +49,7 @@ void moveShip(Ship *ship, direction course, int step_size) {
         step_size
     );
 
-    // Prevent from ships override the edges of the display
-
+    /* Prevent the ships from passing over the edges of the display */
     if(ship->shape.x < 0)
         ship->shape.x = 0;
     else if(ship->shape.x + SHIP_SIZE > DISPLAY_WIDTH)
@@ -71,19 +62,16 @@ void moveShip(Ship *ship, direction course, int step_size) {
 }
 
 bool destroyShip(Ship *ship) {
-    // loginfo("destroyShip enter");
 
     if(!destroyElement(ship->shape)) {
         logerror("Failed to destroy ship shape");
         return false;
     }
 
-    // loginfo("destroyShip finish");
     return true;
 }
 
 bool checkShipsColision(const Ship ship_1, const Ship ship_2) {
-    // loginfo("checkShipsColision");
     return checkElementsColision(ship_1.shape, ship_2.shape);
 }
 
@@ -106,7 +94,6 @@ void printShipArray(const Ship *array, int length) {
 }
 
 int pushShip(const Ship ship, Ship **array, int length) {
-    // loginfo("pushShip enter");
 
     if(!length)
         *array = malloc(sizeof(Ship));
@@ -123,26 +110,16 @@ int pushShip(const Ship ship, Ship **array, int length) {
 
     length++;
 
-    // loginfo("pushShip finish");
 
     return length;
 }
 
 int popShip(const Ship ship, Ship **array, int length) {
-    // loginfo("popShip enter");
-
     int i, j;
-
-    // printf("\n\n\narray[%d]: \n\n", length);
-
-    // printShipArray(*array, length);
-
-    // loginfo("Trying to find ship");
 
     for(i=0; i<length; i++) {
         if(!strcmp( (*array)[i].id , ship.id )) {
 
-            // loginfo("Ship found");
 
             destroyShip( &((*array)[i]) );
 
@@ -161,12 +138,6 @@ int popShip(const Ship ship, Ship **array, int length) {
             break;
         }
     }
-
-    // printf("\n\n\nupdated array[%d]: \n\n", length);
-
-    // printShipArray(*array, length);
-
-    // loginfo("popShip finish");
 
     return length;
 }

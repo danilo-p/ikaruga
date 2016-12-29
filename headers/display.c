@@ -7,28 +7,6 @@
 #include "common.h"
 #include "display.h"
 
-
-ALLEGRO_DISPLAY * createDisplay() {
-    ALLEGRO_DISPLAY *display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-
-    if(!display) {
-        logerror("Failed to create display");
-        return NULL;
-    }
-
-    return display;
-}
-
-bool destroyDisplay(ALLEGRO_DISPLAY **display) {
-    if(!*display) {
-        logerror("No display to destroy");
-        return false;
-    }
-
-    al_destroy_display(*display);
-    return true;
-}
-
 void clearDisplay(ALLEGRO_DISPLAY *display, ALLEGRO_COLOR display_color) {
     al_set_target_bitmap(al_get_backbuffer(display));
     al_clear_to_color(display_color);
@@ -36,8 +14,6 @@ void clearDisplay(ALLEGRO_DISPLAY *display, ALLEGRO_COLOR display_color) {
 
 void renderGameDisplay(ALLEGRO_DISPLAY *display, int level, int score,
         double timestamp, ALLEGRO_FONT *size, int font_size) {
-    // loginfo("renderDisplay enter");
-
     char score_text[255] = "";
     char time_text[255] = "";
     char level_text[255] = "";
@@ -57,6 +33,4 @@ void renderGameDisplay(ALLEGRO_DISPLAY *display, int level, int score,
     }
 
     al_flip_display();
-
-    // loginfo("renderDisplay finish");
 }

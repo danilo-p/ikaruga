@@ -7,7 +7,6 @@
 
 Element createElement(int width, int height, int x, int y,
         ALLEGRO_COLOR color) {
-
     Element element = (Element) {
         .color = color,
         .height = height,
@@ -16,6 +15,7 @@ Element createElement(int width, int height, int x, int y,
         .x = x
     };
 
+    // Create the element bitmap
     element.bitmap = al_create_bitmap(width, height);
 
     if(!checkElement(element)) {
@@ -30,7 +30,6 @@ bool checkElement(const Element element) {
 }
 
 bool destroyElement(Element element) {
-
     if(!element.bitmap) {
         logerror("No element bitmap to destroy");
         return false;
@@ -39,8 +38,6 @@ bool destroyElement(Element element) {
     al_destroy_bitmap(element.bitmap);
 
     element.bitmap = NULL;
-
-    // loginfo("Element destroyed");
 
     return true;
 }

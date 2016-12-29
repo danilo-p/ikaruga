@@ -9,10 +9,6 @@
 #include "ship.h"
 
 Bullet createBullet(const Ship owner) {
-    // loginfo("createBullet enter");
-
-    // printShip(owner);
-
     Bullet bullet = (Bullet) {
         .course = 0,
         .id = ""
@@ -30,95 +26,74 @@ Bullet createBullet(const Ship owner) {
         owner.shape.color
     );
 
-    if(!checkBullet(bullet)) {
+    if(!checkBullet(bullet))
         logerror("Failed to create bullet");
-    }
 
-    // printBullet(bullet);
-
-    // loginfo("createBullet finish");
     return bullet;
 }
 
 bool checkBullet(const Bullet bullet) {
+
     return checkElement(bullet.capsule) &&
         bullet.id != NULL && strlen(bullet.id) > 0;
 }
 
 void renderBullet(const Bullet bullet, ALLEGRO_DISPLAY *display) {
-    // loginfo("renderBullet enter");
-
     renderElement(bullet.capsule, display);
-
-    // loginfo("renderBullet finish");
 }
 
 bool destroyBullet(Bullet *bullet) {
-    // loginfo("destroyBullet enter");
-
     if(!destroyElement(bullet->capsule)) {
         logerror("Failed to destroy bullet capsule");
         return false;
     }
 
-    // loginfo("destroyBullet finish");
     return true;
 }
 
 void moveBullet(Bullet *bullet) {
-    // loginfo("moveBullet enter");
     moveElement( &(bullet->capsule), bullet->course, BULLET_STEP_SIZE);
-    // loginfo("moveBullet finish");
 }
 
 Bullet fireShip(Ship *ship, double interval, ALLEGRO_EVENT e) {
-    // loginfo("fireShip enter");
-
     Bullet bullet = (Bullet) {
         .course = 0,
         .id = ""
     };
 
-    // Check fire ratio
+    // Check the ship shot cadency
     if(ship->last_bullet_fired + interval > e.any.timestamp) {
-        // Return empty bullet
+        // Return empty bullet if the ship is trying to shoot too fast
         return bullet;
     }
-
-    // Bullet ratio ok. Create the bullet.
 
     bullet = createBullet(*ship);
 
     if(checkBullet(bullet)) {
+        // Iterate the ship bullet counter and register the last time that the
+        // ship fired
         ship->bullet_count++;
         ship->last_bullet_fired = e.any.timestamp;
     } else {
         logerror("Failed to create bullet");
     }
 
-    // loginfo("fireShip finish");
-
     return bullet;
 }
 
 bool checkBulletShipColision(const Bullet bullet, const Ship ship) {
-    // loginfo("checkBulletShipColision");
     return checkElementsColision(bullet.capsule, ship.shape);
 }
 
 bool checkBulletDisplayColision(const Bullet bullet) {
-    // loginfo("checkBulletDisplayColision");
     return checkElementDisplayColision(bullet.capsule);
 }
 
 int pushBullet(const Bullet bullet, Bullet **array, int length) {
-    // loginfo("pushBullet enter");
-
     if(!length)
         *array = malloc(sizeof(Bullet));
     else
         *array = realloc(*array, (length+1) * sizeof(Bullet));
-
 
     if(!*array) {
         logerror("Failed to push bullet");
@@ -129,27 +104,14 @@ int pushBullet(const Bullet bullet, Bullet **array, int length) {
 
     length++;
 
-    // loginfo("pushBullet finish");
-
     return length;
 }
 
 int popBullet(const Bullet bullet, Bullet **array, int length) {
-    // loginfo("popBullet enter");
-
     int i, j;
-
-    // printf("\n\n\narray[%d]: \n\n", length);
-    //
-    // printBulletArray(*array, length);
-
-    // loginfo("Trying to find bullet");
 
     for(i=0; i<length; i++) {
         if(!strcmp( (*array)[i].id , bullet.id )) {
-
-            // loginfo("Bullet found");
-
             destroyBullet( &((*array)[i]) );
 
             length--;
@@ -168,12 +130,6 @@ int popBullet(const Bullet bullet, Bullet **array, int length) {
         }
     }
 
-    // printf("\n\n\nupdated array[%d]: \n\n", length);
-
-    // printBulletArray(*array, length);
-
-    // loginfo("popBullet finish");
-
     return length;
 }
 
@@ -182,10 +138,13 @@ void printBullet(const Bullet bullet) {
         bullet.id,
         bullet.course
     );
+
     printElement(bullet.capsule);
 }
 
 void printBulletArray(const Bullet *array, int length) {
     int i=0;
-    for(i=0; i<length; i++) {printBullet(array[i]); }
+
+    for(i=0; i<length; i++)
+        printBullet(array[i]);
 }

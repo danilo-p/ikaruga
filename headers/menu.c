@@ -7,8 +7,12 @@
 #include "display.h"
 #include "config.h"
 #include "common.h"
+#include "game.h"
 
-int mainMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
+int mainMenu(ALLEGRO_DISPLAY *display) {
+
+    ALLEGRO_TIMER *timer = createTimer();
+    ALLEGRO_EVENT_QUEUE *event_queue = createEventQueue(display, timer);
 
     loginfo("mainMenu enter");
 
@@ -25,7 +29,7 @@ int mainMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
         return 0;
     }
 
-    clearDisplay(display);
+    clearDisplay(display, al_map_rgb(0,0,0));
 
     al_set_target_bitmap(al_get_backbuffer(display));
 
@@ -76,10 +80,16 @@ int mainMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     loginfo("mainMenu finish");
 
+    destroyTimer(&timer);
+    destroyEventQueue(&event_queue);
+
     return option;
 }
 
-int pauseMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
+int pauseMenu(ALLEGRO_DISPLAY *display) {
+
+    ALLEGRO_TIMER *timer = createTimer();
+    ALLEGRO_EVENT_QUEUE *event_queue = createEventQueue(display, timer);
 
     loginfo("pauseMenu enter");
 
@@ -96,7 +106,7 @@ int pauseMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
         return 0;
     }
 
-    clearDisplay(display);
+    clearDisplay(display, al_map_rgb(0,0,0));
 
     al_set_target_bitmap(al_get_backbuffer(display));
 
@@ -147,6 +157,9 @@ int pauseMenu(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     loginfo("pauseMenu finish");
 
+    destroyTimer(&timer);
+    destroyEventQueue(&event_queue);
+
     return option;
 }
 
@@ -168,7 +181,7 @@ int gameFinishedMenu(ALLEGRO_DISPLAY *display, int score, double time_elapsed) {
     sprintf(score_text, "Final score: %d", score);
     sprintf(time_text, "Time elapsed: %.2lf", time_elapsed);
 
-    clearDisplay(display);
+    clearDisplay(display, al_map_rgb(0,0,0));
 
     al_set_target_bitmap(al_get_backbuffer(display));
 

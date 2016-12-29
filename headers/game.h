@@ -5,14 +5,19 @@
 #ifndef GAME_H
 #define GAME_H
 
-int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
-        ALLEGRO_EVENT_QUEUE **event_queue);
+ALLEGRO_EVENT_QUEUE * createEventQueue();
 
-void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
-        ALLEGRO_EVENT_QUEUE **event_queue);
+bool destroyEventQueue(ALLEGRO_EVENT_QUEUE **event_queue);
 
-bool startGame(ALLEGRO_DISPLAY *display,
-        ALLEGRO_EVENT_QUEUE *event_queue);
+ALLEGRO_TIMER * createTimer();
+
+bool destroyTimer(ALLEGRO_TIMER **timer);
+
+bool initGame();
+
+// void destroyGame(ALLEGRO_DISPLAY **display);
+
+bool startGame(ALLEGRO_DISPLAY *display);
 
 int spawnEnemy(Ship **array, int length, double timestamp);
 

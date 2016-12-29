@@ -13,35 +13,62 @@
 #include "ship.h"
 #include "menu.h"
 
-int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
-        ALLEGRO_EVENT_QUEUE **event_queue) {
+// Create the event queue and listen to the events of the keyboard and the given
+// display and timer
+ALLEGRO_EVENT_QUEUE * createEventQueue(ALLEGRO_DISPLAY *display,
+        ALLEGRO_TIMER *timer) {
+    ALLEGRO_EVENT_QUEUE *event_queue = al_create_event_queue();
 
-    loginfo("initGame enter");
+    if(!event_queue) {
+        logerror("Failed to create event_queue");
+        return NULL;
+    }
 
+    al_register_event_source(event_queue, al_get_display_event_source(display));
+    al_register_event_source(event_queue, al_get_timer_event_source(timer));
+    al_register_event_source(event_queue, al_get_keyboard_event_source());
+
+    return event_queue;
+}
+
+bool destroyEventQueue(ALLEGRO_EVENT_QUEUE **event_queue) {
+    if(!*event_queue) {
+        logerror("No event_queue to destroy");
+        return false;
+    }
+
+    al_destroy_event_queue(*event_queue);
+    return true;
+}
+
+// Create and start a new allegro timer with the default config FPS
+ALLEGRO_TIMER * createTimer() {
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / FPS);
+
+    if(!timer) {
+        logerror("Failed to create timer");
+        return NULL;
+    }
+
+    al_start_timer(timer);
+
+    return timer;
+}
+
+bool destroyTimer(ALLEGRO_TIMER **timer) {
+    if(!*timer) {
+        logerror("No timer to destroy");
+        return false;
+    }
+
+    al_destroy_timer(*timer);
+    return true;
+}
+
+bool initGame() {
     if(!al_init()) {
         logerror("Failed to initialize allegro");
-        return 0;
-    }
-
-    *display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
-    if(!*display) {
-        logerror("Failed to create display");
-        return 0;
-    }
-
-    *timer = al_create_timer(1.0 / FPS);
-    if(!*timer) {
-        logerror("Failed to create timer");
-        al_destroy_display(*display);
-        return 0;
-    }
-
-    *event_queue = al_create_event_queue();
-    if(!*event_queue) {
-        logerror("Failed to create event_queue");
-        al_destroy_timer(*timer);
-        al_destroy_display(*display);
-        return 0;
+        return false;
     }
 
     al_install_keyboard();
@@ -49,35 +76,64 @@ int initGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
     al_init_font_addon();
     al_init_ttf_addon();
 
-    al_register_event_source(*event_queue, al_get_display_event_source(*display));
-    al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
-    al_register_event_source(*event_queue, al_get_keyboard_event_source());
-
-    al_start_timer(*timer);
-
-    loginfo("initGame finish");
-
-    return 1;
+    return true;
 }
+    // if(!*display) {
+    //     logerror("Failed to create display");
+    //     return 0;
+    // }
+    //
+    // *timer = al_create_timer(1.0 / FPS);
+    // if(!*timer) {
+    //     logerror("Failed to create timer");
+    //     al_destroy_display(*display);
+    //     return 0;
+    // }
+    //
+    // *event_queue = al_create_event_queue();
+    // if(!*event_queue) {
+    //     logerror("Failed to create event_queue");
+    //     al_destroy_timer(*timer);
+    //     al_destroy_display(*display);
+    //     return 0;
+    // }
+    //
+    // al_install_keyboard();
+    // al_init_primitives_addon();
+    // al_init_font_addon();
+    // al_init_ttf_addon();
+    //
+    // al_register_event_source(*event_queue, al_get_display_event_source(*display));
+    // al_register_event_source(*event_queue, al_get_timer_event_source(*timer));
+    // al_register_event_source(*event_queue, al_get_keyboard_event_source());
+    //
+    // al_start_timer(*timer);
+    //
+    // loginfo("initGame finish");
 
-void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
-        ALLEGRO_EVENT_QUEUE **event_queue) {
-    loginfo("destroyGame enter");
+    // return 1;
+// }
 
-    if(*timer) { al_destroy_timer(*timer); }
-    else { logerror("No timer to destroy"); }
+// void destroyGame(ALLEGRO_DISPLAY **display, ALLEGRO_TIMER **timer,
+//         ALLEGRO_EVENT_QUEUE **event_queue) {
+//     loginfo("destroyGame enter");
+//
+//     if(*timer) { al_destroy_timer(*timer); }
+//     else { logerror("No timer to destroy"); }
+//
+//     if(*display) { al_destroy_display(*display); }
+//     else { logerror("No display to destroy"); }
+//
+//     if(*event_queue) { al_destroy_event_queue(*event_queue); }
+//     else { logerror("No event_queue to destroy"); }
+//
+//     loginfo("destroyGame finish");
+// }
 
-    if(*display) { al_destroy_display(*display); }
-    else { logerror("No display to destroy"); }
+bool startGame(ALLEGRO_DISPLAY *display) {
 
-    if(*event_queue) { al_destroy_event_queue(*event_queue); }
-    else { logerror("No event_queue to destroy"); }
-
-    loginfo("destroyGame finish");
-}
-
-bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
-
+    ALLEGRO_TIMER *timer = createTimer();
+    ALLEGRO_EVENT_QUEUE *event_queue = createEventQueue(display, timer);
     Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
     int i, j, bullets_count = 0, enemies_count = 0, score = 0, level = 1;
@@ -120,7 +176,7 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
             /***** Rendering *****/
 
-            clearDisplay(display);
+            clearDisplay(display, al_map_rgb(0,0,0));
 
             renderShip(hero, display);
 
@@ -235,7 +291,9 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
                 break;
 
                 case ALLEGRO_KEY_P:
-                    quit = (pauseMenu(display, event_queue) == 0);
+                    al_stop_timer(timer);
+                    quit = (pauseMenu(display) == 0);
+                    al_start_timer(timer);
                 break;
             }
         } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
@@ -261,8 +319,8 @@ bool startGame(ALLEGRO_DISPLAY *display, ALLEGRO_EVENT_QUEUE *event_queue) {
 
     gameFinishedMenu(display, score, time_elapsed);
 
-    if(!destroyShip(&hero)) {
-        logerror("Failed to destroy ship. Game finished");
+    if(!destroyShip(&hero) || !destroyTimer(&timer) || !destroyEventQueue(&event_queue)) {
+        logerror("Failed to finish game");
         return false;
     }
 

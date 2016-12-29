@@ -8,15 +8,30 @@
 #include "display.h"
 
 
-void clearDisplay(ALLEGRO_DISPLAY *display) {
-    // loginfo("clearDisplay enter");
+ALLEGRO_DISPLAY * createDisplay() {
+    ALLEGRO_DISPLAY *display = al_create_display(DISPLAY_WIDTH, DISPLAY_HEIGHT);
 
-    ALLEGRO_COLOR display_color = al_map_rgb(0, 0, 0);
+    if(!display) {
+        logerror("Failed to create display");
+        return NULL;
+    }
 
+    return display;
+}
+
+bool destroyDisplay(ALLEGRO_DISPLAY **display) {
+    if(!*display) {
+        logerror("No display to destroy");
+        return false;
+    }
+
+    al_destroy_display(*display);
+    return true;
+}
+
+void clearDisplay(ALLEGRO_DISPLAY *display, ALLEGRO_COLOR display_color) {
     al_set_target_bitmap(al_get_backbuffer(display));
     al_clear_to_color(display_color);
-
-    // loginfo("clearDisplay finish");
 }
 
 void renderGameDisplay(ALLEGRO_DISPLAY *display, int level, int score,

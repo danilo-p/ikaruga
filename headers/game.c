@@ -137,7 +137,7 @@ bool startGame(ALLEGRO_DISPLAY *display) {
     Ship hero, *enemies = NULL;
     Bullet *bullets = NULL, new_bullet;
     int i, j, bullets_count = 0, enemies_count = 0, score = 0, level = 1;
-    double last_enemy_created = FIRST_ENEMY_OFFSET, level_factor, time_elapsed;
+    double last_enemy_created = FIRST_ENEMY_OFFSET, level_factor, time_elapsed, start_time = al_get_time();
     bool quit = false;
 
     int move_key_1 = -1, move_key_2 = -1;
@@ -169,8 +169,8 @@ bool startGame(ALLEGRO_DISPLAY *display) {
 
         if(e.type == ALLEGRO_EVENT_TIMER) {
 
-            time_elapsed = e.any.timestamp;
-            level = ((int) e.any.timestamp / GAME_LEVEL_INTERVAL) + 1;
+            time_elapsed = e.any.timestamp - start_time;
+            level = ((int) time_elapsed / GAME_LEVEL_INTERVAL) + 1;
 
             level_factor = level / GAME_LEVEL_DIFFICULTY_FACTOR;
 
@@ -186,7 +186,7 @@ bool startGame(ALLEGRO_DISPLAY *display) {
             for(i=0; i<enemies_count; i++)
                 renderShip(enemies[i], display);
 
-            renderGameDisplay(display, level, score, e.any.timestamp, size, FONT_SIZE_SM);
+            renderGameDisplay(display, level, score, time_elapsed, size, FONT_SIZE_SM);
 
             /***** Game action *****/
 
@@ -200,9 +200,9 @@ bool startGame(ALLEGRO_DISPLAY *display) {
             }
 
             // Spawn enemies
-            if(last_enemy_created + ENEMY_SPAWN_INTERVAL / level_factor < e.any.timestamp) {
-                enemies_count = spawnEnemy(&enemies, enemies_count, e.any.timestamp);
-                last_enemy_created = e.any.timestamp;
+            if(last_enemy_created + ENEMY_SPAWN_INTERVAL / level_factor < time_elapsed) {
+                enemies_count = spawnEnemy(&enemies, enemies_count, time_elapsed);
+                last_enemy_created = time_elapsed;
             }
 
             for(i=0; i<enemies_count; i++) {

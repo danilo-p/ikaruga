@@ -5,6 +5,7 @@
 
 const int FPS;
 
+const char* SCORE_FILE;
 const char* FONT_FAMILY;
 const int FONT_SIZE_SM;
 const int FONT_SIZE_MD;

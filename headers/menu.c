@@ -8,6 +8,7 @@
 #include "config.h"
 #include "common.h"
 #include "game.h"
+#include "score.h"
 
 int mainMenu(ALLEGRO_DISPLAY *display) {
 
@@ -167,8 +168,9 @@ int gameFinishedMenu(ALLEGRO_DISPLAY *display, int score, double time_elapsed) {
     loginfo("gameFinishedMenu enter");
 
     char title_text[] = "You lose";
-    char score_text[255] = "";
-    char time_text[255] = "";
+    char score_text[255];
+    char time_text[255];
+    char best_score_text[255];
     ALLEGRO_FONT *size_lg = NULL, *size_md = NULL;
 
     size_lg = al_load_font(FONT_FAMILY, FONT_SIZE_LG, 1);
@@ -178,7 +180,16 @@ int gameFinishedMenu(ALLEGRO_DISPLAY *display, int score, double time_elapsed) {
         return 0;
     }
 
-    sprintf(score_text, "Final score: %d", score);
+    int best_score = getBestScore();
+
+    if(score > best_score) {
+        sprintf(best_score_text, "New best score!");
+        setBestScore(score);
+    } else {
+        sprintf(best_score_text, "Best score: %d", best_score);
+    }
+
+    sprintf(score_text, "Your score: %d", score);
     sprintf(time_text, "Time elapsed: %.2lf", time_elapsed);
 
     clearDisplay(display, al_map_rgb(0,0,0));
@@ -198,7 +209,17 @@ int gameFinishedMenu(ALLEGRO_DISPLAY *display, int score, double time_elapsed) {
         size_md,
         al_map_rgb(255, 255, 255),
         (DISPLAY_WIDTH/2.0),
-        (DISPLAY_HEIGHT/3.0) + FONT_SIZE_LG + FONT_SIZE_MD,
+        (DISPLAY_HEIGHT/3.0) + 50,
+        ALLEGRO_ALIGN_CENTRE,
+        best_score_text
+    );
+
+
+    al_draw_text(
+        size_md,
+        al_map_rgb(255, 255, 255),
+        (DISPLAY_WIDTH/2.0),
+        (DISPLAY_HEIGHT/3.0) + 80,
         ALLEGRO_ALIGN_CENTRE,
         score_text
     );
@@ -207,7 +228,7 @@ int gameFinishedMenu(ALLEGRO_DISPLAY *display, int score, double time_elapsed) {
         size_md,
         al_map_rgb(255, 255, 255),
         (DISPLAY_WIDTH/2.0),
-        (DISPLAY_HEIGHT/3.0) + FONT_SIZE_LG + FONT_SIZE_MD + FONT_SIZE_LG,
+        (DISPLAY_HEIGHT/3.0) + 110,
         ALLEGRO_ALIGN_CENTRE,
         time_text
     );

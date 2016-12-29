@@ -20,5 +20,11 @@ ikaruga.o: ikaruga.c
 copy:
 	cp $(ASSETS_DIR)* $(BIN_DIR)
 
+setup:
+	mkdir -p bin obj assets
+
+run:
+	cd bin && ./ikaruga && cd ..
+
 clean:
 	rm -f $(OBJ_DIR)*.o $(BIN_DIR)*

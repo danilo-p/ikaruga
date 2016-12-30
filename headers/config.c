@@ -28,4 +28,4 @@ const int ENEMY_STEP_SIZE      = 2;
 const double ENEMY_FIRE_INTERVAL  = 1;
 
 const int GAME_LEVEL_INTERVAL = 30;
-const double GAME_LEVEL_DIFFICULTY_FACTOR = 1.5;
+const double GAME_LEVEL_DIFFICULTY_FACTOR = 0.5;

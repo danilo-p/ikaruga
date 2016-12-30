@@ -42,7 +42,7 @@ const double ENEMY_FIRE_INTERVAL;
 // The interval for the levels
 const int GAME_LEVEL_INTERVAL; // seconds
 // The ammount of difficulty increased on each level. The higher the number, the
-// less difficulty.
+// higher difficulty.
 const double GAME_LEVEL_DIFFICULTY_FACTOR; // number
 
 #endif

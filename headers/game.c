@@ -41,7 +41,8 @@ bool startGame(ALLEGRO_DISPLAY *display) {
     // The bullets array and the aux variable new_bullet
     Bullet *bullets = NULL, new_bullet;
 
-    // The timestamp of the last enemy created, initialized with the configurated offset
+    // The timestamp of the last enemy created, initialized with the
+    // configurated offset
     double last_enemy_created = FIRST_ENEMY_OFFSET;
     // Aux variable to control the levels difficulty
     double level_factor;
@@ -75,7 +76,7 @@ bool startGame(ALLEGRO_DISPLAY *display) {
 
     loginfo("startGame enter");
 
-    // Calculate the spawn coordinates of the hero
+    // Calculate the spawn position of the hero
     int HERO_SPAWN_X = (DISPLAY_WIDTH/2) - (SHIP_SIZE/2);
     int HERO_SPAWN_Y = DISPLAY_HEIGHT - (SHIP_SIZE * 2);
 
@@ -101,7 +102,7 @@ bool startGame(ALLEGRO_DISPLAY *display) {
             level = ((int) time_elapsed / GAME_LEVEL_INTERVAL) + 1;
 
             // Calculate the difficulty factor of the level
-            level_factor = level / GAME_LEVEL_DIFFICULTY_FACTOR;
+            level_factor = level * GAME_LEVEL_DIFFICULTY_FACTOR;
 
             /***** Rendering *****/
 
@@ -194,7 +195,8 @@ bool startGame(ALLEGRO_DISPLAY *display) {
                 if(checkBulletDisplayColision(bullets[i]))
                     bullets_count = popBullet(bullets[i], &bullets, bullets_count);
 
-        } else if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
+        }
+        else if(e.type == ALLEGRO_EVENT_KEY_DOWN) {
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
                 case ALLEGRO_KEY_S:
@@ -238,7 +240,8 @@ bool startGame(ALLEGRO_DISPLAY *display) {
                     al_start_timer(timer);
                 break;
             }
-        } else if(e.type == ALLEGRO_EVENT_KEY_UP) {
+        }
+        else if(e.type == ALLEGRO_EVENT_KEY_UP) {
             switch(e.keyboard.keycode) {
                 case ALLEGRO_KEY_W:
                 case ALLEGRO_KEY_S:
@@ -272,10 +275,14 @@ bool startGame(ALLEGRO_DISPLAY *display) {
     for(i = 0; i < enemies_count; i++)
         destroyBullet(&(bullets[i]));
 
+    free(enemies);
+    free(bullets);
+
     destroyTimer(&timer);
     destroyEventQueue(&event_queue);
 
     loginfo("startGame finish");
+
     return true;
 }
 
